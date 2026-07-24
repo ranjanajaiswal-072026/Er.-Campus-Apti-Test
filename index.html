@@ -21,9 +21,7 @@
         .option-label { display: block; margin: 8px 0; cursor: pointer; }
         button { background-color: #28a745; color: white; border: none; padding: 15px 25px; font-size: 18px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
         button:hover { background-color: #218838; }
-        #disqualified-screen, #blocked-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; color: white; text-align: center; justify-content: center; align-items: center; flex-direction: column; font-size: 24px; z-index: 9999; }
-        #disqualified-screen { background: rgba(220, 53, 69, 0.98); }
-        #blocked-screen { background: rgba(108, 117, 125, 0.98); }
+        #disqualified-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; color: white; text-align: center; justify-content: center; align-items: center; flex-direction: column; font-size: 24px; z-index: 9999; background: rgba(220, 53, 69, 0.98); }
         #quiz-area { display: none; }
     </style>
 </head>
@@ -36,11 +34,6 @@
     <p>You left the test window or switched tabs. Your session has been terminated.</p>
 </div>
 
-<div id="blocked-screen">
-    <h1>⚠️ ACCESS DENIED</h1>
-    <p>This Roll Number has already attempted or completed this assessment.</p>
-</div>
-
 <div class="company-header">InCred Finance</div>
 
 <div class="container" id="login-container">
@@ -49,6 +42,7 @@
     <div class="instructions-box">
         <strong>⚠️ IMPORTANT TEST INSTRUCTIONS:</strong>
         <ul>
+            <li><strong>Mandatory:</strong> Both Name and Roll Number must be filled to start.</li>
             <li><strong>Duration:</strong> You have exactly 5 minutes to complete the test.</li>
             <li><strong>Marking Scheme:</strong> +3 marks for every Correct answer, -1 mark for every Wrong answer. Unanswered questions receive 0.</li>
             <li><strong>Proctoring Rules:</strong> Do NOT switch tabs, minimize the browser, or click outside the test window. Doing so will result in <strong>instant disqualification</strong>.</li>
@@ -57,12 +51,12 @@
     </div>
 
     <div class="input-group">
-        <label>Full Name (Will automatically save in BLOCK LETTERS):</label>
-        <input type="text" id="student-name" placeholder="ENTER YOUR FULL NAME">
+        <label>Full Name * (Mandatory - Saved in BLOCK LETTERS):</label>
+        <input type="text" id="student-name" placeholder="ENTER YOUR FULL NAME" required>
     </div>
     <div class="input-group">
-        <label>Roll Number (Must be exactly 10 characters long):</label>
-        <input type="text" id="student-roll" placeholder="Enter your 10-digit registration roll number" maxlength="10">
+        <label>Roll Number * (Mandatory - Must be exactly 10 characters long):</label>
+        <input type="text" id="student-roll" placeholder="Enter your 10-digit registration roll number" maxlength="10" required>
     </div>
     <button type="button" onclick="startTest()">Start Aptitude Test</button>
 </div>
@@ -87,7 +81,7 @@ const ENTRY_Q3 = "entry.1688443625";
 const ENTRY_Q4 = "entry.1274515003";   
 const ENTRY_Q5 = "entry.913460114";   
 
-// --- HIGH-VARIATION QUESTION BANK ---
+// --- QUESTION BANK ---
 const questionSets = {
     quantitative: [
         { id: 101, q: "A car covers 150 km in 2.5 hours. What is its speed?", o: ["60 km/h", "50 km/h", "70 km/h", "65 km/h"], a: "60 km/h" },
@@ -127,44 +121,24 @@ let timeLeft = 300;
 let countdownTimer;
 
 function startTest() {
-    const nameInput = document.getElementById('student-name');
-    const rollInput = document.getElementById('student-roll');
-
-    if (!nameInput || !rollInput) {
-        alert("System Error: Form input fields could not be found on this page.");
-        return;
-    }
-
-    const name = nameInput.value.trim().toUpperCase();
-    const roll = rollInput.value.trim();
+    const name = document.getElementById('student-name').value.trim().toUpperCase();
+    const roll = document.getElementById('student-roll').value.trim();
     
-    // VISUAL ERROR ALERT: Empty field check
-    if (!name) {
-        alert("Action Required: Please type your Full Name before beginning.");
+    // MANDATORY ERROR PROMPTS
+    if (name === "") {
+        alert("🚨 ERROR: Full Name is mandatory! Please fill in your name.");
         return;
     }
-    if (!roll) {
-        alert("Action Required: Please type your Roll Number before beginning.");
+    if (roll === "") {
+        alert("🚨 ERROR: Roll Number is mandatory! Please fill in your roll number.");
         return;
     }
-
-    // VISUAL ERROR ALERT: Length tracking validation check
     if (roll.length !== 10) {
-        alert("Invalid Entry: Your Roll Number must be exactly 10 characters long. Current character count is: " + roll.length);
+        alert("⚠️ INVALID ROLL NUMBER: Must be exactly 10 characters long. You entered " + roll.length + " characters.");
         return;
     }
 
-    try {
-        if (localStorage.getItem(`attempted_${roll.toLowerCase()}`)) {
-            document.getElementById('login-container').style.display = 'none';
-            document.getElementById('blocked-screen').style.display = 'flex';
-            return;
-        }
-        localStorage.setItem(`attempted_${roll.toLowerCase()}`, "true");
-    } catch (e) {
-        console.warn("Storage tracking sandboxed. Proceeding safely.");
-    }
-
+    // Hide registration and open test area
     document.getElementById('login-container').style.display = 'none';
     document.getElementById('quiz-area').style.display = 'block';
     
@@ -173,8 +147,36 @@ function startTest() {
     
     isTestActive = true;
 
-    try {
-        Object.keys(questionSets).forEach(key => {
-            let set = questionSets[key];
-            let randomQuestion = JSON.parse(JSON.stringify(set[Math.floor(Math.random() * set.length)]));
-            randomQuestion.o.sort(() => 0.5 - Math.random());
+    Object.keys(questionSets).forEach(key => {
+        let set = questionSets[key];
+        let randomQuestion = JSON.parse(JSON.stringify(set[Math.floor(Math.random() * set.length)]));
+        randomQuestion.o.sort(() => 0.5 - Math.random());
+        currentQuestions.push(randomQuestion);
+    });
+
+    renderQuestions();
+    startTimer();
+}
+
+function startTimer() {
+    countdownTimer = setInterval(() => {
+        timeLeft--;
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        
+        document.getElementById('timer-display').textContent = 
+            `Time Left: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdownTimer);
+            executeAutoSubmit("Timeout");
+        }
+    }, 1000);
+}
+
+function renderQuestions() {
+    const container = document.getElementById('questions-container');
+    container.innerHTML = ""; 
+    currentQuestions.forEach((item, index) => {
+        let qDiv = document.createElement('div');
+        qDiv.className = 'question-block';
