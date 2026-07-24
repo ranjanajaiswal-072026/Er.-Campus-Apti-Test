@@ -16,10 +16,10 @@
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
         .input-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
-        #student-roll { text-transform: none; } /* Keep roll number casing normal */
+        #student-roll { text-transform: none; }
         .question-block { margin-bottom: 25px; padding: 15px; border-left: 4px solid #ff6600; background: #f9f9f9; }
         .option-label { display: block; margin: 8px 0; cursor: pointer; }
-        button { background-color: #28a745; color: white; border: none; padding: 12px 25px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+        button { background-color: #28a745; color: white; border: none; padding: 15px 25px; font-size: 18px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
         button:hover { background-color: #218838; }
         #disqualified-screen, #blocked-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; color: white; text-align: center; justify-content: center; align-items: center; flex-direction: column; font-size: 24px; z-index: 9999; }
         #disqualified-screen { background: rgba(220, 53, 69, 0.98); }
@@ -61,10 +61,10 @@
         <input type="text" id="student-name" placeholder="ENTER YOUR FULL NAME">
     </div>
     <div class="input-group">
-        <label>Roll Number (Must be exactly 10 characters):</label>
+        <label>Roll Number (Must be exactly 10 characters long):</label>
         <input type="text" id="student-roll" placeholder="Enter your 10-digit registration roll number" maxlength="10">
     </div>
-    <button onclick="startTest()">Start Aptitude Test</button>
+    <button type="button" onclick="startTest()">Start Aptitude Test</button>
 </div>
 
 <div class="container" id="quiz-area">
@@ -127,22 +127,33 @@ let timeLeft = 300;
 let countdownTimer;
 
 function startTest() {
-    // Capture and clean inputs, forcing block letters on name
-    const name = document.getElementById('student-name').value.trim().toUpperCase();
-    const roll = document.getElementById('student-roll').value.trim();
+    const nameInput = document.getElementById('student-name');
+    const rollInput = document.getElementById('student-roll');
+
+    if (!nameInput || !rollInput) {
+        alert("System Error: Form input fields could not be found on this page.");
+        return;
+    }
+
+    const name = nameInput.value.trim().toUpperCase();
+    const roll = rollInput.value.trim();
     
-    if (!name || !roll) {
-        alert("Please enter both Name and Roll Number to begin.");
+    // VISUAL ERROR ALERT: Empty field check
+    if (!name) {
+        alert("Action Required: Please type your Full Name before beginning.");
+        return;
+    }
+    if (!roll) {
+        alert("Action Required: Please type your Roll Number before beginning.");
         return;
     }
 
-    // STRICT 10-CHARACTER ROLL LENGTH SECURITY CHECK
+    // VISUAL ERROR ALERT: Length tracking validation check
     if (roll.length !== 10) {
-        alert("Invalid Roll Number! It must be exactly 10 characters long.");
+        alert("Invalid Entry: Your Roll Number must be exactly 10 characters long. Current character count is: " + roll.length);
         return;
     }
 
-    // CRASH PROTECTION: Wrap tracking logic in try/catch to support private windows safely
     try {
         if (localStorage.getItem(`attempted_${roll.toLowerCase()}`)) {
             document.getElementById('login-container').style.display = 'none';
@@ -151,7 +162,7 @@ function startTest() {
         }
         localStorage.setItem(`attempted_${roll.toLowerCase()}`, "true");
     } catch (e) {
-        console.warn("Storage tracking unavailable. Proceeding with standard runtime configuration.");
+        console.warn("Storage tracking sandboxed. Proceeding safely.");
     }
 
     document.getElementById('login-container').style.display = 'none';
@@ -162,20 +173,8 @@ function startTest() {
     
     isTestActive = true;
 
-    Object.keys(questionSets).forEach(key => {
-        let set = questionSets[key];
-        let randomQuestion = JSON.parse(JSON.stringify(set[Math.floor(Math.random() * set.length)]));
-        randomQuestion.o.sort(() => 0.5 - Math.random());
-        currentQuestions.push(randomQuestion);
-    });
-
-    renderQuestions();
-    startTimer();
-}
-
-function startTimer() {
-    countdownTimer = setInterval(() => {
-        timeLeft--;
-        let minutes = Math.floor(timeLeft / 60);
-        let seconds = timeLeft % 60;
-        
+    try {
+        Object.keys(questionSets).forEach(key => {
+            let set = questionSets[key];
+            let randomQuestion = JSON.parse(JSON.stringify(set[Math.floor(Math.random() * set.length)]));
+            randomQuestion.o.sort(() => 0.5 - Math.random());
