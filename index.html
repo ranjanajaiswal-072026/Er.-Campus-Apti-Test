@@ -9,13 +9,17 @@
         .company-header { text-align: center; font-size: 28px; font-weight: bold; color: #ff6600; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { color: #333; border-bottom: 2px solid #ff6600; padding-bottom: 10px; margin-top: 5px; }
+        .instructions-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; border-radius: 4px; color: #856404; }
+        .instructions-box ul { margin: 5px 0 0 20px; padding: 0; }
+        .instructions-box li { margin-bottom: 5px; }
         .timer-box { position: fixed; top: 20px; right: 20px; background: #333; color: #fff; padding: 10px 20px; font-size: 20px; font-weight: bold; border-radius: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; }
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .input-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .input-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
+        #student-roll { text-transform: none; } /* Keep roll number casing normal */
         .question-block { margin-bottom: 25px; padding: 15px; border-left: 4px solid #ff6600; background: #f9f9f9; }
         .option-label { display: block; margin: 8px 0; cursor: pointer; }
-        button { background-color: #28a745; color: white; border: none; padding: 12px 25px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%; }
+        button { background-color: #28a745; color: white; border: none; padding: 12px 25px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
         button:hover { background-color: #218838; }
         #disqualified-screen, #blocked-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; color: white; text-align: center; justify-content: center; align-items: center; flex-direction: column; font-size: 24px; z-index: 9999; }
         #disqualified-screen { background: rgba(220, 53, 69, 0.98); }
@@ -41,13 +45,24 @@
 
 <div class="container" id="login-container">
     <h2>Student Registration</h2>
+    
+    <div class="instructions-box">
+        <strong>⚠️ IMPORTANT TEST INSTRUCTIONS:</strong>
+        <ul>
+            <li><strong>Duration:</strong> You have exactly 5 minutes to complete the test.</li>
+            <li><strong>Marking Scheme:</strong> +3 marks for every Correct answer, -1 mark for every Wrong answer. Unanswered questions receive 0.</li>
+            <li><strong>Proctoring Rules:</strong> Do NOT switch tabs, minimize the browser, or click outside the test window. Doing so will result in <strong>instant disqualification</strong>.</li>
+            <li><strong>Controls:</strong> Copying, pasting, and right-clicking are strictly disabled.</li>
+        </ul>
+    </div>
+
     <div class="input-group">
-        <label>Full Name:</label>
-        <input type="text" id="student-name" placeholder="Enter your full name">
+        <label>Full Name (Will automatically save in BLOCK LETTERS):</label>
+        <input type="text" id="student-name" placeholder="ENTER YOUR FULL NAME">
     </div>
     <div class="input-group">
-        <label>Roll Number / Email:</label>
-        <input type="text" id="student-roll" placeholder="Enter your registration roll number">
+        <label>Roll Number (Must be exactly 10 characters):</label>
+        <input type="text" id="student-roll" placeholder="Enter your 10-digit registration roll number" maxlength="10">
     </div>
     <button onclick="startTest()">Start Aptitude Test</button>
 </div>
@@ -112,21 +127,33 @@ let timeLeft = 300;
 let countdownTimer;
 
 function startTest() {
-    const name = document.getElementById('student-name').value.trim();
-    const roll = document.getElementById('student-roll').value.trim().toLowerCase();
+    // Capture and clean inputs, forcing block letters on name
+    const name = document.getElementById('student-name').value.trim().toUpperCase();
+    const roll = document.getElementById('student-roll').value.trim();
     
     if (!name || !roll) {
         alert("Please enter both Name and Roll Number to begin.");
         return;
     }
 
-    if (localStorage.getItem(`attempted_${roll}`)) {
-        document.getElementById('login-container').style.display = 'none';
-        document.getElementById('blocked-screen').style.display = 'flex';
+    // STRICT 10-CHARACTER ROLL LENGTH SECURITY CHECK
+    if (roll.length !== 10) {
+        alert("Invalid Roll Number! It must be exactly 10 characters long.");
         return;
     }
 
-    localStorage.setItem(`attempted_${roll}`, "true");
+    // CRASH PROTECTION: Wrap tracking logic in try/catch to support private windows safely
+    try {
+        if (localStorage.getItem(`attempted_${roll.toLowerCase()}`)) {
+            document.getElementById('login-container').style.display = 'none';
+            document.getElementById('blocked-screen').style.display = 'flex';
+            return;
+        }
+        localStorage.setItem(`attempted_${roll.toLowerCase()}`, "true");
+    } catch (e) {
+        console.warn("Storage tracking unavailable. Proceeding with standard runtime configuration.");
+    }
+
     document.getElementById('login-container').style.display = 'none';
     document.getElementById('quiz-area').style.display = 'block';
     
@@ -152,50 +179,3 @@ function startTimer() {
         let minutes = Math.floor(timeLeft / 60);
         let seconds = timeLeft % 60;
         
-        document.getElementById('timer-display').textContent = 
-            `Time Left: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        
-        if (timeLeft <= 0) {
-            clearInterval(countdownTimer);
-            executeAutoSubmit("Timeout");
-        }
-    }, 1000);
-}
-
-function renderQuestions() {
-    const container = document.getElementById('questions-container');
-    currentQuestions.forEach((item, index) => {
-        let qDiv = document.createElement('div');
-        qDiv.className = 'question-block';
-        qDiv.innerHTML = `<p><strong>Q${index + 1}:</strong> ${item.q}</p><div class="options"></div>`;
-        
-        let optionsDiv = qDiv.querySelector('.options');
-        item.o.forEach(opt => {
-            optionsDiv.innerHTML += `
-                <label class="option-label">
-                    <input type="radio" name="q${item.id}" value="${opt}"> ${opt}
-                </label>`;
-        });
-        container.appendChild(qDiv);
-    });
-}
-
-// SECURE EVENT LOCKS
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('keydown', e => {
-    if (e.ctrlKey && ['c', 'v', 'x', 'u'].includes(e.key.toLowerCase())) e.preventDefault();
-});
-
-function disqualifyUser() {
-    if (!isTestActive) return;
-    isTestActive = false;
-    clearInterval(countdownTimer);
-    document.getElementById('quiz-area').style.display = 'none';
-    document.getElementById('timer-display').style.display = 'none';
-    document.getElementById('disqualified-screen').style.display = 'flex';
-    
-    const elements = [];
-    currentQuestions.forEach(item => {
-        elements.push(`Q: ${item.q} | A: DISQUALIFIED [WRONG]`);
-    });
-    sendAnswersToForm(elements);
