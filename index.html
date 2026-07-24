@@ -3,28 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campus Aptitude Test</title>
+    <title>InCred Finance - Campus Aptitude Test</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; user-select: none; -webkit-user-select: none; }
+        .company-header { text-align: center; font-size: 28px; font-weight: bold; color: #ff6600; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
         .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 10px; }
+        h2 { color: #333; border-bottom: 2px solid #ff6600; padding-bottom: 10px; margin-top: 5px; }
+        .timer-box { position: fixed; top: 20px; right: 20px; background: #333; color: #fff; padding: 10px 20px; font-size: 20px; font-weight: bold; border-radius: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; }
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
         .input-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        .question-block { margin-bottom: 25px; padding: 15px; border-left: 4px solid #007BFF; background: #f9f9f9; }
+        .question-block { margin-bottom: 25px; padding: 15px; border-left: 4px solid #ff6600; background: #f9f9f9; }
         .option-label { display: block; margin: 8px 0; cursor: pointer; }
         button { background-color: #28a745; color: white; border: none; padding: 12px 25px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%; }
         button:hover { background-color: #218838; }
-        #disqualified-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(220, 53, 69, 0.98); color: white; text-align: center; justify-content: center; align-items: center; flex-direction: column; font-size: 24px; z-index: 9999; }
+        #disqualified-screen, #blocked-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; color: white; text-align: center; justify-content: center; align-items: center; flex-direction: column; font-size: 24px; z-index: 9999; }
+        #disqualified-screen { background: rgba(220, 53, 69, 0.98); }
+        #blocked-screen { background: rgba(108, 117, 125, 0.98); }
         #quiz-area { display: none; }
     </style>
 </head>
 <body>
 
+<div id="timer-display" class="timer-box" style="display: none;">Time Left: 05:00</div>
+
 <div id="disqualified-screen">
     <h1>🔴 DISQUALIFIED</h1>
     <p>You left the test window or switched tabs. Your session has been terminated.</p>
 </div>
+
+<div id="blocked-screen">
+    <h1>⚠️ ACCESS DENIED</h1>
+    <p>This Roll Number has already attempted or completed this assessment.</p>
+</div>
+
+<div class="company-header">InCred Finance</div>
 
 <div class="container" id="login-container">
     <h2>Student Registration</h2>
@@ -44,59 +57,82 @@
     <p style="color: red;"><strong>Warning:</strong> Moving to another tab, window, or clicking outside will instantly disqualify you.</p>
     <form id="quiz-form">
         <div id="questions-container"></div>
-        <button type="button" onclick="submitTest()">Submit Assessment</button>
+        <button type="button" onclick="handleManualSubmit()">Submit Assessment</button>
     </form>
 </div>
 
 <script>
-// --- CONFIGURATION: PASTE YOUR GOOGLE FORM DETAILS HERE ---
-const GOOGLE_FORM_ID = "YOUR_GOOGLE_FORM_ID_HERE"; 
-const ENTRY_NAME = "entry.111111"; // Replace with your name entry ID
-const ENTRY_ROLL = "entry.222222"; // Replace with your roll entry ID
-const ENTRY_Q1 = "entry.333333";   // Replace with Q1 answer entry ID
-const ENTRY_Q2 = "entry.444444";   // Replace with Q2 answer entry ID
-const ENTRY_Q3 = "entry.555555";   // Replace with Q3 answer entry ID
-const ENTRY_Q4 = "entry.666666";   // Replace with Q4 answer entry ID
-const ENTRY_Q5 = "entry.777777";   // Replace with Q5 answer entry ID
+// --- GOOGLE FORM CONFIGURATION ---
+const GOOGLE_FORM_ID = "1FAIpQLSf7shAqF1eo0LVmGA2aK6ScU6wsfHYCH2AS3OWTMmVdNpaWBQ"; 
+const ENTRY_NAME = "entry.138963828"; 
+const ENTRY_ROLL = "entry.840056099"; 
+const ENTRY_Q1 = "entry.440299450";   
+const ENTRY_Q2 = "entry.1673505219";   
+const ENTRY_Q3 = "entry.1688443625";   
+const ENTRY_Q4 = "entry.1274515003";   
+const ENTRY_Q5 = "entry.913460114";   
 
-// --- MULTIPLE QUESTION SETS (5 DIFFERENT CATEGORIES) ---
+// --- HIGH-VARIATION QUESTION BANK ---
 const questionSets = {
     quantitative: [
         { id: 101, q: "A car covers 150 km in 2.5 hours. What is its speed?", o: ["60 km/h", "50 km/h", "70 km/h", "65 km/h"], a: "60 km/h" },
-        { id: 102, q: "What is 15% of 1200?", o: ["180", "150", "160", "200"], a: "180" }
+        { id: 102, q: "What is 15% of 1200?", o: ["180", "150", "160", "200"], a: "180" },
+        { id: 103, q: "A sum of money doubles itself in 5 years at simple interest. What is the rate?", o: ["20%", "10%", "15%", "25%"], a: "20%" },
+        { id: 104, q: "Find the average of first five prime numbers.", o: ["5.6", "4.8", "5.0", "6.2"], a: "5.6" }
     ],
     logical: [
         { id: 201, q: "Complete the pattern: 2, 6, 12, 20, ?", o: ["30", "42", "36", "40"], a: "30" },
-        { id: 202, q: "Light is to Darkness as Knowledge is to:", o: ["Ignorance", "Intelligence", "Books", "School"], a: "Ignorance" }
+        { id: 202, q: "Light is to Darkness as Knowledge is to:", o: ["Ignorance", "Intelligence", "Books", "School"], a: "Ignorance" },
+        { id: 203, q: "If CLOCK is coded as KCOLC, how is STEPS coded?", o: ["SPETS", "SPSTE", "SETPS", "STEPZ"], a: "SPETS" },
+        { id: 204, q: "Pointing to a man, a woman said, 'His mother is the only daughter of my father.' How is the woman related to the man?", o: ["Mother", "Sister", "Aunt", "Grandmother"], a: "Mother" }
     ],
     verbal: [
         { id: 301, q: "Choose the synonym for 'Abandon':", o: ["Forsake", "Keep", "Cherish", "Adopt"], a: "Forsake" },
-        { id: 302, q: "Identify the correctly spelled word:", o: ["Accommodate", "Acomodate", "Accomodate", "Acommodate"], a: "Accommodate" }
+        { id: 302, q: "Identify the correctly spelled word:", o: ["Accommodate", "Acomodate", "Accomodate", "Acommodate"], a: "Accommodate" },
+        { id: 303, q: "Antonym of the word 'Artificial' is:", o: ["Natural", "Solid", "Truthful", "Genuine"], a: "Natural" },
+        { id: 304, q: "Fill in the blank: She has been studying ___ morning.", o: ["since", "for", "from", "by"], a: "since" }
     ],
     dataInterpretation: [
         { id: 401, q: "If Company X profits grew from $10M to $12M, what is the percentage growth?", o: ["20%", "15%", "25%", "10%"], a: "20%" },
-        { id: 402, q: "Average of 10, 20, 30, 40, and 50 is:", o: ["30", "25", "35", "40"], a: "30" }
+        { id: 402, q: "Average of 10, 20, 30, 40, and 50 is:", o: ["30", "25", "35", "40"], a: "30" },
+        { id: 403, q: "Ratio of 400 meters to 4 kilometers is:", o: ["1:10", "1:1", "1:100", "10:1"], a: "1:10" },
+        { id: 404, q: "A pie chart total angle is always:", o: ["360 degrees", "180 degrees", "90 degrees", "100 degrees"], a: "360 degrees" }
     ],
     technicalAptitude: [
         { id: 501, q: "Which data structure operates on a Last In First Out (LIFO) basis?", o: ["Stack", "Queue", "Array", "Linked List"], a: "Stack" },
-        { id: 502, q: "What does HTML stand for?", o: ["HyperText Markup Language", "HighText Machine Language", "HyperText Marking Language", "None"], a: "HyperText Markup Language" }
+        { id: 502, q: "What does HTML stand for?", o: ["HyperText Markup Language", "HighText Machine Language", "HyperText Marking Language", "None"], a: "HyperText Markup Language" },
+        { id: 503, q: "Which of the following is not an operating system?", o: ["Oracle", "Linux", "Windows", "macOS"], a: "Oracle" },
+        { id: 504, q: "What is the brain of a computer system called?", o: ["CPU", "RAM", "ALU", "Control Unit"], a: "CPU" }
     ]
 };
 
 let currentQuestions = [];
 let isTestActive = false;
+let timeLeft = 300; 
+let countdownTimer;
 
 function startTest() {
     const name = document.getElementById('student-name').value.trim();
-    const roll = document.getElementById('student-roll').value.trim();
+    const roll = document.getElementById('student-roll').value.trim().toLowerCase();
     
     if (!name || !roll) {
         alert("Please enter both Name and Roll Number to begin.");
         return;
     }
 
+    if (localStorage.getItem(`attempted_${roll}`)) {
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('blocked-screen').style.display = 'flex';
+        return;
+    }
+
+    localStorage.setItem(`attempted_${roll}`, "true");
     document.getElementById('login-container').style.display = 'none';
     document.getElementById('quiz-area').style.display = 'block';
+    
+    const timerDisplay = document.getElementById('timer-display');
+    timerDisplay.style.display = 'block';
+    
     isTestActive = true;
 
     Object.keys(questionSets).forEach(key => {
@@ -107,6 +143,23 @@ function startTest() {
     });
 
     renderQuestions();
+    startTimer();
+}
+
+function startTimer() {
+    countdownTimer = setInterval(() => {
+        timeLeft--;
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        
+        document.getElementById('timer-display').textContent = 
+            `Time Left: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdownTimer);
+            executeAutoSubmit("Timeout");
+        }
+    }, 1000);
 }
 
 function renderQuestions() {
@@ -127,7 +180,7 @@ function renderQuestions() {
     });
 }
 
-// SECURITY LOGIC
+// SECURE EVENT LOCKS
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('keydown', e => {
     if (e.ctrlKey && ['c', 'v', 'x', 'u'].includes(e.key.toLowerCase())) e.preventDefault();
@@ -136,54 +189,13 @@ document.addEventListener('keydown', e => {
 function disqualifyUser() {
     if (!isTestActive) return;
     isTestActive = false;
+    clearInterval(countdownTimer);
     document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('timer-display').style.display = 'none';
     document.getElementById('disqualified-screen').style.display = 'flex';
     
-    // Log student as disqualified across all fields
-    const answers = ["DISQUALIFIED", "DISQUALIFIED", "DISQUALIFIED", "DISQUALIFIED", "DISQUALIFIED"];
-    sendAnswersToForm(answers);
-}
-
-document.addEventListener('visibilitychange', () => { if (document.hidden) disqualifyUser(); });
-window.addEventListener('blur', () => { disqualifyUser(); });
-
-function submitTest() {
-    if (!isTestActive) return;
-    isTestActive = false;
-
-    let studentAnswers = [];
+    const elements = [];
     currentQuestions.forEach(item => {
-        let selected = document.querySelector(`input[name="q${item.id}"]:checked`);
-        // Append response string along with verification data
-        if (selected) {
-            let status = (selected.value === item.a) ? "[CORRECT]" : "[WRONG]";
-            studentAnswers.push(`${selected.value} ${status}`);
-        } else {
-            studentAnswers.push("Unanswered [WRONG]");
-        }
+        elements.push(`Q: ${item.q} | A: DISQUALIFIED [WRONG]`);
     });
-
-    sendAnswersToForm(studentAnswers);
-    alert("Test submitted successfully!");
-    window.location.reload();
-}
-
-function sendAnswersToForm(answersArray) {
-    const name = document.getElementById('student-name').value;
-    const roll = document.getElementById('student-roll').value;
-    const formUrl = `https://google.com{GOOGLE_FORM_ID}/formResponse`;
-    
-    const formData = new FormData();
-    formData.append(ENTRY_NAME, name);
-    formData.append(ENTRY_ROLL, roll);
-    formData.append(ENTRY_Q1, answersArray[0]);
-    formData.append(ENTRY_Q2, answersArray[1]);
-    formData.append(ENTRY_Q3, answersArray[2]);
-    formData.append(ENTRY_Q4, answersArray[3]);
-    formData.append(ENTRY_Q5, answersArray[4]);
-
-    navigator.sendBeacon(formUrl, formData);
-}
-</script>
-</body>
-</html>
+    sendAnswersToForm(elements);
