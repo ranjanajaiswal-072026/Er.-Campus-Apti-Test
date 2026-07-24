@@ -1,1 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Aptitude Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            user-select: none; /* Prevents text selection/copying */
+            -webkit-user-select: none;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 { color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 10px; }
+        .question-block { margin-bottom: 25px; padding: 15px; border-left: 4px solid #007BFF; background: #f9f9f9; }
+        .options { margin-top: 10px; }
+        .option-label { display: block; margin: 8px 0; cursor: pointer; }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #218838; }
+        /* Disqualification Screen Overlay */
+        #disqualified-screen {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(220, 53, 69, 0.98);
+            color: white;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            font-size: 24px;
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+
+<div id="disqualified-screen">
+    <h1>🔴 DISQUALIFIED</h1>
+    <p>You left the test window or attempted to cheat. Your test session has been terminated.</p>
+</div>
+
+<div class="container" id="quiz-container">
+    <h2>Campus Recruitment Aptitude Test</h2>
+    <p><strong>Rules:</strong> Do not right-click, do not copy/paste, and do NOT switch tabs or windows. Leaving this page will result in automatic disqualification.</p>
+    
+    <form id="quiz-form">
+        <div id="questions-container"></div>
+        <button type="button" onclick="submitTest()">Submit Test</button>
+    </form>
+</div>
+
+<script>
+// 1. YOUR MASTER QUESTION BANK
+// Add all your questions here. The code will automatically pick a random subset for each student.
+const masterQuestionBank = [
+    { id: 1, q: "If a car travels at 60 km/h, how long will it take to cover 150 km?", o: ["2 hours", "2.5 hours", "3 hours", "1.5 hours"], a: "2.5 hours" },
+    { id: 2, q: "Complete the series: 2, 6, 12, 20, 30, ?", o: ["40", "42", "44", "46"], a: "42" },
+    { id: 3, q: "A father is twice as old as his son. 20 years ago, he was 4 times as old. How old is the son now?", o: ["30", "25", "40", "35"], a: "30" },
+    { id: 4, q: "Find the odd one out: Apple, Orange, Potato, Banana", o: ["Apple", "Orange", "Potato", "Banana"], a: "Potato" },
+    { id: 5, q: "If codes for 'CAT' is 'ECV', what is the code for 'DOG'?", o: ["FQI", "FQI", "FQI", "FQI"], a: "FQI" },
+    { id: 6, q: "A train 100m long passes a platform 100m long in 10 seconds. Find its speed.", o: ["20 m/s", "10 m/s", "15 m/s", "25 m/s"], a: "20 m/s" }
+];
+
+// Configuration: How many random questions should each student get?
+const QUESTIONS_PER_STUDENT = 4; 
+
+// 2. RANDOMIZATION LOGIC
+function getRandomQuestions(bank, count) {
+    let shuffled = [...bank].sort(() => 0.5 - Math.random()); // Randomize question order
+    let selected = shuffled.slice(0, count);
+    
+    // Also randomize options inside each selected question
+    selected.forEach(item => {
+        item.o = [...item.o].sort(() => 0.5 - Math.random());
+    });
+    return selected;
+}
+
+const currentQuestions = getRandomQuestions(masterQuestionBank, QUESTIONS_PER_STUDENT);
+
+// 3. RENDER QUESTIONS TO PAGE
+const container = document.getElementById('questions-container');
+currentQuestions.forEach((item, index) => {
+    let qDiv = document.createElement('div');
+    qDiv.className = 'question-block';
+    qDiv.innerHTML = `<p><strong>Q${index + 1}:</strong> ${item.q}</p><div class="options"></div>`;
+    
+    let optionsDiv = qDiv.querySelector('.options');
+    item.o.forEach(opt => {
+        optionsDiv.innerHTML += `
+            <label class="option-label">
+                <input type="radio" name="q${item.id}" value="${opt}"> ${opt}
+            </label>`;
+    });
+    container.appendChild(qDiv);
+});
+
+// 4. SECURITY & ANTI-CHEAT LOGIC
+
+// Block Right-Click
+document.addEventListener('contextmenu', event => event.preventDefault());
+
+// Block Copy, Cut, and Paste keyboard shortcuts
+document.addEventListener('keydown', event => {
+    if (event.ctrlKey && (event.key === 'c' || event.key === 'v' || event.key === 'x' || event.key === 'u')) {
+        event.preventDefault();
+        alert("Copy, paste, and viewing source code are strictly disabled.");
+    }
+});
+
+// TAB SWITCH / WINDOW BLUR DETECTION (The Disqualification Trigger)
+function disqualifyUser() {
+    document.getElementById('quiz-container').style.display = 'none';
+    const failScreen = document.getElementById('disqualified-screen');
+    failScreen.style.display = 'flex';
+    
+    // Optional: Send data to a database here if you have a backend set up.
+    console.log("Student Disqualified for switching tabs.");
+}
+
+// Triggers if they change browser tabs or minimize the window
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { disqualifyUser(); }
+});
+
+// Triggers if they click outside the browser window (e.g., clicking on another app on a dual monitor)
+window.addEventListener('blur', () => {
+    disqualifyUser();
+});
+
+// 5. TEST SUBMISSION
+function submitTest() {
+    let score = 0;
+    currentQuestions.forEach(item => {
+        let selectedOption = document.querySelector(`input[name="q${item.id}"]:checked`);
+        if (selectedOption && selectedOption.value === item.a) {
+            score++;
+        }
+    });
+    alert(`Test Completed! Your score is ${score} out of ${QUESTIONS_PER_STUDENT}`);
+    // Here you can redirect them or display a completion message
+}
+</script>
+</body>
+</html>
 
