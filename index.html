@@ -5,161 +5,185 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campus Aptitude Test</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 20px;
-            user-select: none; /* Prevents text selection/copying */
-            -webkit-user-select: none;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; user-select: none; -webkit-user-select: none; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         h2 { color: #333; border-bottom: 2px solid #007BFF; padding-bottom: 10px; }
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .input-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
         .question-block { margin-bottom: 25px; padding: 15px; border-left: 4px solid #007BFF; background: #f9f9f9; }
-        .options { margin-top: 10px; }
         .option-label { display: block; margin: 8px 0; cursor: pointer; }
-        button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+        button { background-color: #28a745; color: white; border: none; padding: 12px 25px; font-size: 16px; border-radius: 5px; cursor: pointer; width: 100%; }
         button:hover { background-color: #218838; }
-        /* Disqualification Screen Overlay */
-        #disqualified-screen {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(220, 53, 69, 0.98);
-            color: white;
-            text-align: center;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            font-size: 24px;
-            z-index: 9999;
-        }
+        #disqualified-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(220, 53, 69, 0.98); color: white; text-align: center; justify-content: center; align-items: center; flex-direction: column; font-size: 24px; z-index: 9999; }
+        #quiz-area { display: none; }
     </style>
 </head>
 <body>
 
 <div id="disqualified-screen">
     <h1>🔴 DISQUALIFIED</h1>
-    <p>You left the test window or attempted to cheat. Your test session has been terminated.</p>
+    <p>You left the test window or switched tabs. Your session has been terminated.</p>
 </div>
 
-<div class="container" id="quiz-container">
+<div class="container" id="login-container">
+    <h2>Student Registration</h2>
+    <div class="input-group">
+        <label>Full Name:</label>
+        <input type="text" id="student-name" placeholder="Enter your full name">
+    </div>
+    <div class="input-group">
+        <label>Roll Number / Email:</label>
+        <input type="text" id="student-roll" placeholder="Enter your registration roll number">
+    </div>
+    <button onclick="startTest()">Start Aptitude Test</button>
+</div>
+
+<div class="container" id="quiz-area">
     <h2>Campus Recruitment Aptitude Test</h2>
-    <p><strong>Rules:</strong> Do not right-click, do not copy/paste, and do NOT switch tabs or windows. Leaving this page will result in automatic disqualification.</p>
-    
+    <p style="color: red;"><strong>Warning:</strong> Moving to another tab, window, or clicking outside will instantly disqualify you.</p>
     <form id="quiz-form">
         <div id="questions-container"></div>
-        <button type="button" onclick="submitTest()">Submit Test</button>
+        <button type="button" onclick="submitTest()">Submit Assessment</button>
     </form>
 </div>
 
 <script>
-// 1. YOUR MASTER QUESTION BANK
-// Add all your questions here. The code will automatically pick a random subset for each student.
-const masterQuestionBank = [
-    { id: 1, q: "If a car travels at 60 km/h, how long will it take to cover 150 km?", o: ["2 hours", "2.5 hours", "3 hours", "1.5 hours"], a: "2.5 hours" },
-    { id: 2, q: "Complete the series: 2, 6, 12, 20, 30, ?", o: ["40", "42", "44", "46"], a: "42" },
-    { id: 3, q: "A father is twice as old as his son. 20 years ago, he was 4 times as old. How old is the son now?", o: ["30", "25", "40", "35"], a: "30" },
-    { id: 4, q: "Find the odd one out: Apple, Orange, Potato, Banana", o: ["Apple", "Orange", "Potato", "Banana"], a: "Potato" },
-    { id: 5, q: "If codes for 'CAT' is 'ECV', what is the code for 'DOG'?", o: ["FQI", "FQI", "FQI", "FQI"], a: "FQI" },
-    { id: 6, q: "A train 100m long passes a platform 100m long in 10 seconds. Find its speed.", o: ["20 m/s", "10 m/s", "15 m/s", "25 m/s"], a: "20 m/s" }
-];
+// --- CONFIGURATION: PASTE YOUR GOOGLE FORM DETAILS HERE ---
+const GOOGLE_FORM_ID = "YOUR_GOOGLE_FORM_ID_HERE"; 
+const ENTRY_NAME = "entry.111111"; // Replace with your name entry ID
+const ENTRY_ROLL = "entry.222222"; // Replace with your roll entry ID
+const ENTRY_Q1 = "entry.333333";   // Replace with Q1 answer entry ID
+const ENTRY_Q2 = "entry.444444";   // Replace with Q2 answer entry ID
+const ENTRY_Q3 = "entry.555555";   // Replace with Q3 answer entry ID
+const ENTRY_Q4 = "entry.666666";   // Replace with Q4 answer entry ID
+const ENTRY_Q5 = "entry.777777";   // Replace with Q5 answer entry ID
 
-// Configuration: How many random questions should each student get?
-const QUESTIONS_PER_STUDENT = 4; 
+// --- MULTIPLE QUESTION SETS (5 DIFFERENT CATEGORIES) ---
+const questionSets = {
+    quantitative: [
+        { id: 101, q: "A car covers 150 km in 2.5 hours. What is its speed?", o: ["60 km/h", "50 km/h", "70 km/h", "65 km/h"], a: "60 km/h" },
+        { id: 102, q: "What is 15% of 1200?", o: ["180", "150", "160", "200"], a: "180" }
+    ],
+    logical: [
+        { id: 201, q: "Complete the pattern: 2, 6, 12, 20, ?", o: ["30", "42", "36", "40"], a: "30" },
+        { id: 202, q: "Light is to Darkness as Knowledge is to:", o: ["Ignorance", "Intelligence", "Books", "School"], a: "Ignorance" }
+    ],
+    verbal: [
+        { id: 301, q: "Choose the synonym for 'Abandon':", o: ["Forsake", "Keep", "Cherish", "Adopt"], a: "Forsake" },
+        { id: 302, q: "Identify the correctly spelled word:", o: ["Accommodate", "Acomodate", "Accomodate", "Acommodate"], a: "Accommodate" }
+    ],
+    dataInterpretation: [
+        { id: 401, q: "If Company X profits grew from $10M to $12M, what is the percentage growth?", o: ["20%", "15%", "25%", "10%"], a: "20%" },
+        { id: 402, q: "Average of 10, 20, 30, 40, and 50 is:", o: ["30", "25", "35", "40"], a: "30" }
+    ],
+    technicalAptitude: [
+        { id: 501, q: "Which data structure operates on a Last In First Out (LIFO) basis?", o: ["Stack", "Queue", "Array", "Linked List"], a: "Stack" },
+        { id: 502, q: "What does HTML stand for?", o: ["HyperText Markup Language", "HighText Machine Language", "HyperText Marking Language", "None"], a: "HyperText Markup Language" }
+    ]
+};
 
-// 2. RANDOMIZATION LOGIC
-function getRandomQuestions(bank, count) {
-    let shuffled = [...bank].sort(() => 0.5 - Math.random()); // Randomize question order
-    let selected = shuffled.slice(0, count);
+let currentQuestions = [];
+let isTestActive = false;
+
+function startTest() {
+    const name = document.getElementById('student-name').value.trim();
+    const roll = document.getElementById('student-roll').value.trim();
     
-    // Also randomize options inside each selected question
-    selected.forEach(item => {
-        item.o = [...item.o].sort(() => 0.5 - Math.random());
-    });
-    return selected;
-}
-
-const currentQuestions = getRandomQuestions(masterQuestionBank, QUESTIONS_PER_STUDENT);
-
-// 3. RENDER QUESTIONS TO PAGE
-const container = document.getElementById('questions-container');
-currentQuestions.forEach((item, index) => {
-    let qDiv = document.createElement('div');
-    qDiv.className = 'question-block';
-    qDiv.innerHTML = `<p><strong>Q${index + 1}:</strong> ${item.q}</p><div class="options"></div>`;
-    
-    let optionsDiv = qDiv.querySelector('.options');
-    item.o.forEach(opt => {
-        optionsDiv.innerHTML += `
-            <label class="option-label">
-                <input type="radio" name="q${item.id}" value="${opt}"> ${opt}
-            </label>`;
-    });
-    container.appendChild(qDiv);
-});
-
-// 4. SECURITY & ANTI-CHEAT LOGIC
-
-// Block Right-Click
-document.addEventListener('contextmenu', event => event.preventDefault());
-
-// Block Copy, Cut, and Paste keyboard shortcuts
-document.addEventListener('keydown', event => {
-    if (event.ctrlKey && (event.key === 'c' || event.key === 'v' || event.key === 'x' || event.key === 'u')) {
-        event.preventDefault();
-        alert("Copy, paste, and viewing source code are strictly disabled.");
+    if (!name || !roll) {
+        alert("Please enter both Name and Roll Number to begin.");
+        return;
     }
-});
 
-// TAB SWITCH / WINDOW BLUR DETECTION (The Disqualification Trigger)
-function disqualifyUser() {
-    document.getElementById('quiz-container').style.display = 'none';
-    const failScreen = document.getElementById('disqualified-screen');
-    failScreen.style.display = 'flex';
-    
-    // Optional: Send data to a database here if you have a backend set up.
-    console.log("Student Disqualified for switching tabs.");
+    document.getElementById('login-container').style.display = 'none';
+    document.getElementById('quiz-area').style.display = 'block';
+    isTestActive = true;
+
+    Object.keys(questionSets).forEach(key => {
+        let set = questionSets[key];
+        let randomQuestion = JSON.parse(JSON.stringify(set[Math.floor(Math.random() * set.length)]));
+        randomQuestion.o.sort(() => 0.5 - Math.random());
+        currentQuestions.push(randomQuestion);
+    });
+
+    renderQuestions();
 }
 
-// Triggers if they change browser tabs or minimize the window
-document.addEventListener('visibilitychange', () => {
-    if (document.hidden) { disqualifyUser(); }
+function renderQuestions() {
+    const container = document.getElementById('questions-container');
+    currentQuestions.forEach((item, index) => {
+        let qDiv = document.createElement('div');
+        qDiv.className = 'question-block';
+        qDiv.innerHTML = `<p><strong>Q${index + 1}:</strong> ${item.q}</p><div class="options"></div>`;
+        
+        let optionsDiv = qDiv.querySelector('.options');
+        item.o.forEach(opt => {
+            optionsDiv.innerHTML += `
+                <label class="option-label">
+                    <input type="radio" name="q${item.id}" value="${opt}"> ${opt}
+                </label>`;
+        });
+        container.appendChild(qDiv);
+    });
+}
+
+// SECURITY LOGIC
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+    if (e.ctrlKey && ['c', 'v', 'x', 'u'].includes(e.key.toLowerCase())) e.preventDefault();
 });
 
-// Triggers if they click outside the browser window (e.g., clicking on another app on a dual monitor)
-window.addEventListener('blur', () => {
-    disqualifyUser();
-});
+function disqualifyUser() {
+    if (!isTestActive) return;
+    isTestActive = false;
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('disqualified-screen').style.display = 'flex';
+    
+    // Log student as disqualified across all fields
+    const answers = ["DISQUALIFIED", "DISQUALIFIED", "DISQUALIFIED", "DISQUALIFIED", "DISQUALIFIED"];
+    sendAnswersToForm(answers);
+}
 
-// 5. TEST SUBMISSION
+document.addEventListener('visibilitychange', () => { if (document.hidden) disqualifyUser(); });
+window.addEventListener('blur', () => { disqualifyUser(); });
+
 function submitTest() {
-    let score = 0;
+    if (!isTestActive) return;
+    isTestActive = false;
+
+    let studentAnswers = [];
     currentQuestions.forEach(item => {
-        let selectedOption = document.querySelector(`input[name="q${item.id}"]:checked`);
-        if (selectedOption && selectedOption.value === item.a) {
-            score++;
+        let selected = document.querySelector(`input[name="q${item.id}"]:checked`);
+        // Append response string along with verification data
+        if (selected) {
+            let status = (selected.value === item.a) ? "[CORRECT]" : "[WRONG]";
+            studentAnswers.push(`${selected.value} ${status}`);
+        } else {
+            studentAnswers.push("Unanswered [WRONG]");
         }
     });
-    alert(`Test Completed! Your score is ${score} out of ${QUESTIONS_PER_STUDENT}`);
-    // Here you can redirect them or display a completion message
+
+    sendAnswersToForm(studentAnswers);
+    alert("Test submitted successfully!");
+    window.location.reload();
+}
+
+function sendAnswersToForm(answersArray) {
+    const name = document.getElementById('student-name').value;
+    const roll = document.getElementById('student-roll').value;
+    const formUrl = `https://google.com{GOOGLE_FORM_ID}/formResponse`;
+    
+    const formData = new FormData();
+    formData.append(ENTRY_NAME, name);
+    formData.append(ENTRY_ROLL, roll);
+    formData.append(ENTRY_Q1, answersArray[0]);
+    formData.append(ENTRY_Q2, answersArray[1]);
+    formData.append(ENTRY_Q3, answersArray[2]);
+    formData.append(ENTRY_Q4, answersArray[3]);
+    formData.append(ENTRY_Q5, answersArray[4]);
+
+    navigator.sendBeacon(formUrl, formData);
 }
 </script>
 </body>
 </html>
-
