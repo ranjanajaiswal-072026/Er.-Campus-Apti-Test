@@ -1,179 +1,141 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InCred Finance - Campus Aptitude Test</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; user-select: none; -webkit-user-select: none; }
-        .company-header { text-align: center; font-size: 28px; font-weight: bold; color: #ff6600; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #333; border-bottom: 2px solid #ff6600; padding-bottom: 10px; margin-top: 5px; }
-        .instructions-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; border-radius: 4px; color: #856404; }
-        .instructions-box ul { margin: 5px 0 0 20px; padding: 0; }
-        .instructions-box li { margin-bottom: 5px; }
-        .timer-box { position: fixed; top: 20px; right: 20px; background: #333; color: #fff; padding: 10px 20px; font-size: 20px; font-weight: bold; border-radius: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .input-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
-        #student-roll { text-transform: none; }
-        .question-block { margin-bottom: 25px; padding: 15px; border-left: 4px solid #ff6600; background: #f9f9f9; }
-        .option-label { display: block; margin: 8px 0; cursor: pointer; }
-        button { background-color: #28a745; color: white; border: none; padding: 15px 25px; font-size: 18px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
-        button:hover { background-color: #218838; }
-        #disqualified-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; color: white; text-align: center; justify-content: center; align-items: center; flex-direction: column; font-size: 24px; z-index: 9999; background: rgba(220, 53, 69, 0.98); }
-        #quiz-area { display: none; }
-    </style>
-</head>
-<body>
- 
-<div id="timer-display" class="timer-box" style="display: none;">Time Left: 05:00</div>
- 
-<div id="disqualified-screen">
-    <h1>🔴 DISQUALIFIED</h1>
-    <p id="disqualification-reason">You left the test window or switched tabs. Your session has been terminated.</p>
-</div>
- 
-<div class="company-header">InCred Finance</div>
- 
-<div class="container" id="login-container">
-    <h2>Student Registration</h2>
-    
-    <div class="instructions-box">
-        <strong>⚠️ IMPORTANT TEST INSTRUCTIONS:</strong>
-        <ul>
-            <li><strong>Mandatory:</strong> Both Name and Roll Number must be filled to start.</li>
-            <li><strong>Duration:</strong> You have exactly 5 minutes to complete the test.</li>
-            <li><strong>Marking Scheme:</strong> +3 marks for every Correct answer, -1 mark for every Wrong answer. Unanswered questions receive 0.</li>
-            <li><strong>Proctoring Rules:</strong> Do NOT switch tabs, minimize the browser, or click outside the test window. Doing so will result in <strong>instant disqualification</strong>.</li>
-            <li><strong>Controls:</strong> Copying, pasting, and right-clicking are strictly disabled.</li>
-        </ul>
-    </div>
- 
-    <div class="input-group">
-        <label>Full Name * (Mandatory - Saved in BLOCK LETTERS):</label>
-        <input type="text" id="student-name" placeholder="ENTER YOUR FULL NAME" required>
-    </div>
-    <div class="input-group">
-        <label>Roll Number * (Mandatory - Must be exactly 10 characters long):</label>
-        <input type="text" id="student-roll" placeholder="Enter your 10-digit registration roll number" maxlength="10" required>
-    </div>
-    <button type="button" onclick="startTest()">Start Aptitude Test</button>
-</div>
- 
-<div class="container" id="quiz-area">
-    <h2>Campus Recruitment Aptitude Test</h2>
-    <p style="color: red;"><strong>Warning:</strong> Moving to another tab, window, or clicking outside will instantly disqualify you.</p>
-    <form id="quiz-form">
-        <div id="questions-container"></div>
-        <button type="button" onclick="handleManualSubmit()">Submit Assessment</button>
-    </form>
-</div>
- 
-<script>
-// --- GOOGLE FORM CONFIGURATION ---
-const GOOGLE_FORM_ID = "1FAIpQLSf7shAqF1eo0LVmGA2aK6ScU6wsfHYCH2AS3OWTMmVdNpaWBQ"; 
-const ENTRY_NAME = "entry.138963828"; 
-const ENTRY_ROLL = "entry.840056099"; 
-const ENTRY_Q1 = "entry.440299450";   
-const ENTRY_Q2 = "entry.1673505219";   
-const ENTRY_Q3 = "entry.1688443625";   
-const ENTRY_Q4 = "entry.1274515003";   
-const ENTRY_Q5 = "entry.913460114";   
- 
-// --- QUESTION BANK ---
-const questionSets = {
-    quantitative: [
-        { id: 101, q: "A car covers 150 km in 2.5 hours. What is its speed?", o: ["60 km/h", "50 km/h", "70 km/h", "65 km/h"], a: "60 km/h" },
-        { id: 102, q: "What is 15% of 1200?", o: ["180", "150", "160", "200"], a: "180" },
-        { id: 103, q: "A sum of money doubles itself in 5 years at simple interest. What is the rate?", o: ["20%", "10%", "15%", "25%"], a: "20%" },
-        { id: 104, q: "Find the average of first five prime numbers.", o: ["5.6", "4.8", "5.0", "6.2"], a: "5.6" }
-    ],
-    logical: [
-        { id: 201, q: "Complete the pattern: 2, 6, 12, 20, ?", o: ["30", "42", "36", "40"], a: "30" },
-        { id: 202, q: "Light is to Darkness as Knowledge is to:", o: ["Ignorance", "Intelligence", "Books", "School"], a: "Ignorance" },
-        { id: 203, q: "If CLOCK is coded as KCOLC, how is STEPS coded?", o: ["SPETS", "SPSTE", "SETPS", "STEPZ"], a: "SPETS" },
-        { id: 204, q: "Pointing to a man, a woman said, 'His mother is the only daughter of my father.' How is the woman related to the man?", o: ["Mother", "Sister", "Aunt", "Grandmother"], a: "Mother" }
-    ],
-    verbal: [
-        { id: 301, q: "Choose the synonym for 'Abandon':", o: ["Forsake", "Keep", "Cherish", "Adopt"], a: "Forsake" },
-        { id: 302, q: "Identify the correctly spelled word:", o: ["Accommodate", "Acomodate", "Accomodate", "Acommodate"], a: "Accommodate" },
-        { id: 303, q: "Antonym of the word 'Artificial' is:", o: ["Natural", "Solid", "Truthful", "Genuine"], a: "Natural" },
-        { id: 304, q: "Fill in the blank: She has been studying ___ morning.", o: ["since", "for", "from", "by"], a: "since" }
-    ],
-    dataInterpretation: [
-        { id: 401, q: "If Company X profits grew from $10M to $12M, what is the percentage growth?", o: ["20%", "15%", "25%", "10%"], a: "20%" },
-        { id: 402, q: "Average of 10, 20, 30, 40, and 50 is:", o: ["30", "25", "35", "40"], a: "30" },
-        { id: 403, q: "Ratio of 400 meters to 4 kilometers is:", o: ["1:10", "1:1", "1:100", "10:1"], a: "1:10" },
-        { id: 404, q: "A pie chart total angle is always:", o: ["360 degrees", "180 degrees", "90 degrees", "100 degrees"], a: "360 degrees" }
-    ],
-    technicalAptitude: [
-        { id: 501, q: "Which data structure operates on a Last In First Out (LIFO) basis?", o: ["Stack", "Queue", "Array", "Linked List"], a: "Stack" },
-        { id: 502, q: "What does HTML stand for?", o: ["HyperText Markup Language", "HighText Machine Language", "HyperText Marking Language", "None"], a: "HyperText Markup Language" },
-        { id: 503, q: "Which of the following is not an operating system?", o: ["Oracle", "Linux", "Windows", "macOS"], a: "Oracle" },
-        { id: 504, q: "What is the brain of a computer system called?", o: ["CPU", "RAM", "ALU", "Control Unit"], a: "CPU" }
-    ]
-};
- 
-let currentQuestions = [];
-let isTestActive = false;
-let timeLeft = 300; 
-let countdownTimer;
-let studentName = "";
-let studentRoll = "";
- 
-// Disable copy, paste, and context menu globally
-document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('copy', e => e.preventDefault());
 document.addEventListener('paste', e => e.preventDefault());
-document.addEventListener('cut', e => e.preventDefault());
- 
-function startTest() {
-    studentName = document.getElementById('student-name').value.trim().toUpperCase();
-    studentRoll = document.getElementById('student-roll').value.trim();
-    
-    if (studentName === "") {
-        alert("🚨 ERROR: Full Name is mandatory!");
-        return;
-    }
-    if (studentRoll.length !== 10) {
-        alert("🚨 ERROR: Roll Number must be exactly 10 characters long!");
-        return;
-    }
- 
-    // Dynamic selection: Pick 1 random question from each of the 5 categories
+
+// Select random question from each pool
+function generateTestPaper() {
     currentQuestions = [
-        getRandomQuestion(questionSets.quantitative),
-        getRandomQuestion(questionSets.logical),
-        getRandomQuestion(questionSets.verbal),
-        getRandomQuestion(questionSets.dataInterpretation),
-        getRandomQuestion(questionSets.technicalAptitude)
+        questionSets.quantitative[Math.floor(Math.random() * questionSets.quantitative.length)],
+        questionSets.logical[Math.floor(Math.random() * questionSets.logical.length)],
+        questionSets.verbal[Math.floor(Math.random() * questionSets.verbal.length)],
+        questionSets.dataInterpretation[Math.floor(Math.random() * questionSets.dataInterpretation.length)],
+        questionSets.technicalAptitude[Math.floor(Math.random() * questionSets.technicalAptitude.length)]
     ];
- 
+}
+
+function startTest() {
+    const nameInput = document.getElementById("student-name").value.trim();
+    const rollInput = document.getElementById("student-roll").value.trim();
+
+    if (!nameInput || rollInput.length !== 10) {
+        alert("Please enter a valid Full Name and exactly 10-character Roll Number.");
+        return;
+    }
+
+    studentName = nameInput.toUpperCase();
+    studentRoll = rollInput;
+
+    document.getElementById("login-container").style.display = "none";
+    document.getElementById("quiz-area").style.display = "block";
+    document.getElementById("timer-display").style.display = "block";
+
+    generateTestPaper();
     renderQuestions();
- 
-    // Toggle views
-    document.getElementById('login-container').style.display = 'none';
-    document.getElementById('quiz-area').style.display = 'block';
-    document.getElementById('timer-display').style.display = 'block';
- 
+    
     isTestActive = true;
     startTimer();
-    setupProctoring();
+
+    // Enable tab/window proctoring checks
+    window.addEventListener('blur', disqualifyStudent);
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) disqualifyStudent();
+    });
 }
- 
-function getRandomQuestion(categoryArray) {
-    const randomIndex = Math.floor(Math.random() * categoryArray.length);
-    return categoryArray[randomIndex];
-}
- 
+
 function renderQuestions() {
-    const container = document.getElementById('questions-container');
+    const container = document.getElementById("questions-container");
     container.innerHTML = "";
- 
-    currentQuestions.forEach((qObj, index) => {
-        const qBlock = document.createElement('div');
-        qBlock.className = 'question-block';
-        
-        const qText = document.createElement('p');
-        qText.innerHTML = `<strong>Q${index + 1}.</strong> ${qObj.q}`;
+    
+    currentQuestions.forEach((q, index) => {
+        let questionHtml = `
+            <div class="question-block">
+                <p><strong>Q${index + 1}: ${q.q}</strong></p>
+        `;
+        q.o.forEach(option => {
+            questionHtml += `
+                <label class="option-label">
+                    <input type="radio" name="q${index + 1}" value="${option}"> ${option}
+                </label>
+            `;
+        });
+        questionHtml += `</div>`;
+        container.innerHTML += questionHtml;
+    });
+}
+
+function startTimer() {
+    countdownTimer = setInterval(() => {
+        timeLeft--;
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        document.getElementById("timer-display").innerText = `Time Left: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        if (timeLeft <= 0) {
+            clearInterval(countdownTimer);
+            submitTest("TIMEOUT");
+        }
+    }, 1000);
+}
+
+function disqualifyStudent() {
+    if (!isTestActive) return;
+    isTestActive = false;
+    clearInterval(countdownTimer);
+    
+    document.getElementById("quiz-area").style.display = "none";
+    document.getElementById("timer-display").style.display = "none";
+    document.getElementById("disqualified-screen").style.display = "flex";
+    
+    submitTest("DISQUALIFIED_TAB_SWITCH");
+}
+
+function handleManualSubmit() {
+    if (confirm("Are you sure you want to submit your assessment?")) {
+        isTestActive = false;
+        clearInterval(countdownTimer);
+        submitTest("MANUAL_SUBMIT");
+    }
+}
+
+function submitTest(status) {
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = `https://google.com{GOOGLE_FORM_ID}/formResponse`;
+    form.target = "_blank";
+
+    const addField = (name, value) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        input.value = value || "UNANSWERED";
+        form.appendChild(input);
+    };
+
+    addField(ENTRY_NAME, studentName);
+    addField(ENTRY_ROLL, studentRoll);
+
+    // Collect answers or mark status
+    if (status.startsWith("DISQUALIFIED")) {
+        addField(ENTRY_Q1, status);
+        addField(ENTRY_Q2, status);
+        addField(ENTRY_Q3, status);
+        addField(ENTRY_Q4, status);
+        addField(ENTRY_Q5, status);
+    } else {
+        addField(ENTRY_Q1, document.querySelector('input[name="q1"]:checked')?.value);
+        addField(ENTRY_Q2, document.querySelector('input[name="q2"]:checked')?.value);
+        addField(ENTRY_Q3, document.querySelector('input[name="q3"]:checked')?.value);
+        addField(ENTRY_Q4, document.querySelector('input[name="q4"]:checked')?.value);
+        addField(ENTRY_Q5, document.querySelector('input[name="q5"]:checked')?.value);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+    
+    if (status !== "DISQUALIFIED_TAB_SWITCH") {
+        alert("Your assessment answers have been compiled and sent to Google Forms successfully!");
+        window.location.reload();
+    }
+}
+</script>
+</body>
+</html>
