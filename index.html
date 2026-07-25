@@ -122,7 +122,7 @@ let countdownTimer;
 let studentName = "";
 let studentRoll = "";
  
-// Disable security breaches layout
+// Disable hotkeys and context menu security features
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('copy', e => e.preventDefault());
 document.addEventListener('paste', e => e.preventDefault());
@@ -142,8 +142,12 @@ function startTest() {
     const nameInput = document.getElementById("student-name").value.trim();
     const rollInput = document.getElementById("student-roll").value.trim();
 
-    if (!nameInput || rollInput.length !== 10) {
-        alert("Please enter a valid Full Name and exactly 10-character Roll Number.");
+    if (!nameInput) {
+        alert("Please enter your Full Name before starting.");
+        return;
+    }
+    if (rollInput.length !== 10) {
+        alert("Roll Number error: Must be exactly 10 characters long.");
         return;
     }
 
@@ -160,7 +164,7 @@ function startTest() {
     isTestActive = true;
     startTimer();
 
-    // Enable tab/window proctoring checks
+    // FIXED: Proctoring listeners register only after validation and manual test ignition
     window.addEventListener('blur', disqualifyStudent);
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) disqualifyStudent();
@@ -169,8 +173,3 @@ function startTest() {
 
 function renderQuestions() {
     const container = document.getElementById("questions-container");
-    container.innerHTML = "";
-    
-    currentQuestions.forEach((q, index) => {
-        let questionHtml = `
-            <div class="question-block">
