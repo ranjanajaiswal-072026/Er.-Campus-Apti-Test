@@ -26,16 +26,16 @@
     </style>
 </head>
 <body>
-
+ 
 <div id="timer-display" class="timer-box" style="display: none;">Time Left: 05:00</div>
-
+ 
 <div id="disqualified-screen">
     <h1>🔴 DISQUALIFIED</h1>
-    <p>You left the test window or switched tabs. Your session has been terminated.</p>
+    <p id="disqualification-reason">You left the test window or switched tabs. Your session has been terminated.</p>
 </div>
-
+ 
 <div class="company-header">InCred Finance</div>
-
+ 
 <div class="container" id="login-container">
     <h2>Student Registration</h2>
     
@@ -49,7 +49,7 @@
             <li><strong>Controls:</strong> Copying, pasting, and right-clicking are strictly disabled.</li>
         </ul>
     </div>
-
+ 
     <div class="input-group">
         <label>Full Name * (Mandatory - Saved in BLOCK LETTERS):</label>
         <input type="text" id="student-name" placeholder="ENTER YOUR FULL NAME" required>
@@ -60,7 +60,7 @@
     </div>
     <button type="button" onclick="startTest()">Start Aptitude Test</button>
 </div>
-
+ 
 <div class="container" id="quiz-area">
     <h2>Campus Recruitment Aptitude Test</h2>
     <p style="color: red;"><strong>Warning:</strong> Moving to another tab, window, or clicking outside will instantly disqualify you.</p>
@@ -69,7 +69,7 @@
         <button type="button" onclick="handleManualSubmit()">Submit Assessment</button>
     </form>
 </div>
-
+ 
 <script>
 // --- GOOGLE FORM CONFIGURATION ---
 const GOOGLE_FORM_ID = "1FAIpQLSf7shAqF1eo0LVmGA2aK6ScU6wsfHYCH2AS3OWTMmVdNpaWBQ"; 
@@ -80,7 +80,7 @@ const ENTRY_Q2 = "entry.1673505219";
 const ENTRY_Q3 = "entry.1688443625";   
 const ENTRY_Q4 = "entry.1274515003";   
 const ENTRY_Q5 = "entry.913460114";   
-
+ 
 // --- QUESTION BANK ---
 const questionSets = {
     quantitative: [
@@ -114,69 +114,66 @@ const questionSets = {
         { id: 504, q: "What is the brain of a computer system called?", o: ["CPU", "RAM", "ALU", "Control Unit"], a: "CPU" }
     ]
 };
-
+ 
 let currentQuestions = [];
 let isTestActive = false;
 let timeLeft = 300; 
 let countdownTimer;
-
+let studentName = "";
+let studentRoll = "";
+ 
+// Disable copy, paste, and context menu globally
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('copy', e => e.preventDefault());
+document.addEventListener('paste', e => e.preventDefault());
+document.addEventListener('cut', e => e.preventDefault());
+ 
 function startTest() {
-    const name = document.getElementById('student-name').value.trim().toUpperCase();
-    const roll = document.getElementById('student-roll').value.trim();
+    studentName = document.getElementById('student-name').value.trim().toUpperCase();
+    studentRoll = document.getElementById('student-roll').value.trim();
     
-    // MANDATORY ERROR PROMPTS
-    if (name === "") {
-        alert("🚨 ERROR: Full Name is mandatory! Please fill in your name.");
+    if (studentName === "") {
+        alert("🚨 ERROR: Full Name is mandatory!");
         return;
     }
-    if (roll === "") {
-        alert("🚨 ERROR: Roll Number is mandatory! Please fill in your roll number.");
+    if (studentRoll.length !== 10) {
+        alert("🚨 ERROR: Roll Number must be exactly 10 characters long!");
         return;
     }
-    if (roll.length !== 10) {
-        alert("⚠️ INVALID ROLL NUMBER: Must be exactly 10 characters long. You entered " + roll.length + " characters.");
-        return;
-    }
-
-    // Hide registration and open test area
+ 
+    // Dynamic selection: Pick 1 random question from each of the 5 categories
+    currentQuestions = [
+        getRandomQuestion(questionSets.quantitative),
+        getRandomQuestion(questionSets.logical),
+        getRandomQuestion(questionSets.verbal),
+        getRandomQuestion(questionSets.dataInterpretation),
+        getRandomQuestion(questionSets.technicalAptitude)
+    ];
+ 
+    renderQuestions();
+ 
+    // Toggle views
     document.getElementById('login-container').style.display = 'none';
     document.getElementById('quiz-area').style.display = 'block';
-    
-    const timerDisplay = document.getElementById('timer-display');
-    timerDisplay.style.display = 'block';
-    
+    document.getElementById('timer-display').style.display = 'block';
+ 
     isTestActive = true;
-
-    Object.keys(questionSets).forEach(key => {
-        let set = questionSets[key];
-        let randomQuestion = JSON.parse(JSON.stringify(set[Math.floor(Math.random() * set.length)]));
-        randomQuestion.o.sort(() => 0.5 - Math.random());
-        currentQuestions.push(randomQuestion);
-    });
-
-    renderQuestions();
     startTimer();
+    setupProctoring();
 }
-
-function startTimer() {
-    countdownTimer = setInterval(() => {
-        timeLeft--;
-        let minutes = Math.floor(timeLeft / 60);
-        let seconds = timeLeft % 60;
-        
-        document.getElementById('timer-display').textContent = 
-            `Time Left: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        
-        if (timeLeft <= 0) {
-            clearInterval(countdownTimer);
-            executeAutoSubmit("Timeout");
-        }
-    }, 1000);
+ 
+function getRandomQuestion(categoryArray) {
+    const randomIndex = Math.floor(Math.random() * categoryArray.length);
+    return categoryArray[randomIndex];
 }
-
+ 
 function renderQuestions() {
     const container = document.getElementById('questions-container');
-    container.innerHTML = ""; 
-    currentQuestions.forEach((item, index) => {
-        let qDiv = document.createElement('div');
-        qDiv.className = 'question-block';
+    container.innerHTML = "";
+ 
+    currentQuestions.forEach((qObj, index) => {
+        const qBlock = document.createElement('div');
+        qBlock.className = 'question-block';
+        
+        const qText = document.createElement('p');
+        qText.innerHTML = `<strong>Q${index + 1}.</strong> ${qObj.q}`;
