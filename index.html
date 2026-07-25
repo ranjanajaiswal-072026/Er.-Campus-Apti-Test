@@ -5,26 +5,221 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>InCred Finance - Campus Aptitude Test</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; user-select: none; -webkit-user-select: none; }
-        .company-header { text-align: center; font-size: 28px; font-weight: bold; color: #ff6600; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
-        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #333; border-bottom: 2px solid #ff6600; padding-bottom: 10px; margin-top: 5px; }
-        .instructions-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; border-radius: 4px; color: #856404; }
-        .instructions-box ul { margin: 5px 0 0 20px; padding: 0; }
-        .instructions-box li { margin-bottom: 5px; }
-        .timer-box { position: fixed; top: 20px; right: 20px; background: #333; color: #fff; padding: 10px 20px; font-size: 20px; font-weight: bold; border-radius: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 1000; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .input-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
+        :root {
+            --brand-navy: #14213d;
+            --brand-orange: #ff6600;
+            --brand-orange-dark: #e05a00;
+            --bg: #f2f4f8;
+            --text-dark: #1f2430;
+            --text-muted: #5a6270;
+            --danger: #dc3545;
+            --success: #28a745;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            padding: 24px 16px;
+            color: var(--text-dark);
+            user-select: none;
+            -webkit-user-select: none;
+            line-height: 1.5;
+        }
+
+        .company-header {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--brand-navy);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .company-subheader {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .container {
+            max-width: 760px;
+            margin: 0 auto 20px auto;
+            background: #ffffff;
+            padding: 32px 36px;
+            border-radius: 10px;
+            box-shadow: 0 6px 24px rgba(20, 33, 61, 0.08);
+            border-top: 4px solid var(--brand-orange);
+        }
+
+        h2 {
+            color: var(--brand-navy);
+            font-size: 21px;
+            border-bottom: 2px solid var(--brand-orange);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        .instructions-box {
+            background: #fff8e6;
+            border-left: 4px solid #ffc107;
+            padding: 16px 18px;
+            margin-bottom: 24px;
+            border-radius: 4px;
+            color: #6b5300;
+            font-size: 14px;
+        }
+        .instructions-box strong.title { font-size: 15px; }
+        .instructions-box ul { margin: 8px 0 0 20px; padding: 0; }
+        .instructions-box li { margin-bottom: 6px; }
+
+        .timer-box {
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            background: var(--brand-navy);
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 18px;
+            font-weight: 700;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            z-index: 1000;
+            letter-spacing: 0.5px;
+            transition: background-color 0.3s ease;
+        }
+        .timer-box.time-critical {
+            background: var(--danger);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .input-group { margin-bottom: 18px; }
+        .input-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--brand-navy);
+        }
+        .input-group .hint {
+            display: block;
+            font-weight: 400;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 11px 12px;
+            font-size: 15px;
+            border: 1px solid #ccd2dc;
+            border-radius: 6px;
+            text-transform: uppercase;
+            font-family: Arial, Helvetica, sans-serif;
+            transition: border-color 0.2s ease;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--brand-orange);
+            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.12);
+        }
+        /* Roll number is an identifier, not a name -- do not force block letters */
         #student-roll { text-transform: none; }
-        .question-block { margin-bottom: 25px; padding: 15px; border-left: 4px solid #ff6600; background: #f9f9f9; }
-        .question-block p.q-text { font-weight: bold; margin-top: 0; }
-        .option-label { display: block; margin: 8px 0; cursor: pointer; }
-        button { background-color: #28a745; color: white; border: none; padding: 15px 25px; font-size: 18px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
+
+        .question-block {
+            margin-bottom: 22px;
+            padding: 16px 18px;
+            border-left: 4px solid var(--brand-orange);
+            background: #fafafa;
+            border-radius: 0 6px 6px 0;
+        }
+        .question-block p.q-text {
+            font-weight: 700;
+            margin: 0 0 10px 0;
+            font-size: 15px;
+            color: var(--brand-navy);
+        }
+        .option-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 6px 8px;
+            border-radius: 4px;
+            transition: background-color 0.15s ease;
+        }
+        .option-label:hover { background: #f0f0f0; }
+        .option-label input[type="radio"] { cursor: pointer; width: 16px; height: 16px; }
+
+        button {
+            background-color: var(--success);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 700;
+            margin-top: 8px;
+            font-family: Arial, Helvetica, sans-serif;
+            letter-spacing: 0.3px;
+            transition: background-color 0.15s ease, transform 0.05s ease;
+        }
         button:hover { background-color: #218838; }
-        #disqualified-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; color: white; text-align: center; justify-content: center; align-items: center; flex-direction: column; font-size: 24px; z-index: 9999; background: rgba(220, 53, 69, 0.98); }
-        #submitted-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; color: white; text-align: center; justify-content: center; align-items: center; flex-direction: column; font-size: 24px; z-index: 9999; background: rgba(40, 167, 69, 0.98); }
+        button:active { transform: translateY(1px); }
+        button:disabled {
+            background-color: #9fb0a3;
+            cursor: not-allowed;
+        }
+
+        #disqualified-screen, #submitted-screen {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            color: white;
+            text-align: center;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            z-index: 9999;
+            padding: 20px;
+        }
+        #disqualified-screen { background: rgba(178, 34, 52, 0.98); }
+        #submitted-screen { background: rgba(30, 126, 52, 0.98); }
+        #disqualified-screen h1, #submitted-screen h1 { font-size: 30px; margin-bottom: 10px; }
+        #disqualified-screen p, #submitted-screen p { font-size: 16px; max-width: 480px; }
+
         #quiz-area { display: none; }
+
+        .warning-text {
+            color: var(--danger);
+            font-size: 13px;
+            font-weight: 700;
+            background: #fdecee;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 22px 18px; }
+            .company-header { font-size: 21px; }
+            h2 { font-size: 18px; }
+            .timer-box { top: 10px; right: 10px; padding: 8px 14px; font-size: 15px; }
+        }
     </style>
 </head>
 <body>
@@ -37,44 +232,47 @@
 </div>
 
 <div id="submitted-screen">
-    <h1>✅ TEST SUBMITTED</h1>
+    <h1>✅ Test Submitted</h1>
     <p>Thank you. Your responses have been recorded successfully.</p>
-    <p style="font-size:16px;">You may now close this window.</p>
+    <p style="font-size:14px; opacity:0.9;">You may now close this window.</p>
 </div>
 
 <div class="company-header">InCred Finance</div>
+<div class="company-subheader">Campus Recruitment &mdash; Aptitude Assessment</div>
 
 <div class="container" id="login-container">
     <h2>Student Registration</h2>
 
     <div class="instructions-box">
-        <strong>⚠️ IMPORTANT TEST INSTRUCTIONS:</strong>
+        <strong class="title">⚠️ IMPORTANT TEST INSTRUCTIONS</strong>
         <ul>
             <li><strong>Mandatory:</strong> Both Name and Roll Number must be filled to start.</li>
             <li><strong>Duration:</strong> You have exactly 5 minutes to complete the test.</li>
-            <li><strong>Marking Scheme:</strong> +3 marks for every Correct answer, -1 mark for every Wrong answer. Unanswered questions receive 0.</li>
+            <li><strong>Marking Scheme:</strong> +3 marks for every correct answer, &minus;1 mark for every wrong answer. Unanswered questions receive 0.</li>
             <li><strong>Proctoring Rules:</strong> Do NOT switch tabs, minimize the browser, or click outside the test window. Doing so will result in <strong>instant disqualification</strong>.</li>
             <li><strong>Controls:</strong> Copying, pasting, and right-clicking are strictly disabled.</li>
         </ul>
     </div>
 
     <div class="input-group">
-        <label>Full Name * (Mandatory - Saved in BLOCK LETTERS):</label>
+        <label>Full Name *</label>
         <input type="text" id="student-name" placeholder="ENTER YOUR FULL NAME" required>
+        <span class="hint">Mandatory. Recorded in BLOCK LETTERS.</span>
     </div>
     <div class="input-group">
-        <label>Roll Number * (Mandatory - Must be exactly 10 characters long):</label>
-        <input type="text" id="student-roll" placeholder="Enter your 10-digit registration roll number" maxlength="10" required>
+        <label>Roll Number *</label>
+        <input type="text" id="student-roll" placeholder="Enter your 10-character registration roll number" maxlength="10" required>
+        <span class="hint">Mandatory. Must be exactly 10 characters, no spaces.</span>
     </div>
     <button type="button" id="start-btn" onclick="startTest()">Start Aptitude Test</button>
 </div>
 
 <div class="container" id="quiz-area">
     <h2>Campus Recruitment Aptitude Test</h2>
-    <p style="color: red;"><strong>Warning:</strong> Moving to another tab, window, or clicking outside will instantly disqualify you.</p>
+    <p class="warning-text">⚠ Moving to another tab, window, or clicking outside will instantly disqualify you.</p>
     <form id="quiz-form">
         <div id="questions-container"></div>
-        <button type="button" onclick="handleManualSubmit()">Submit Assessment</button>
+        <button type="button" id="submit-btn" onclick="handleManualSubmit()">Submit Assessment</button>
     </form>
 </div>
 
@@ -91,6 +289,11 @@ const ENTRY_Q2 = "entry.1673505219";
 const ENTRY_Q3 = "entry.1688443625";
 const ENTRY_Q4 = "entry.1274515003";
 const ENTRY_Q5 = "entry.913460114";
+
+const MARKS_CORRECT = 3;
+const MARKS_WRONG = -1;
+const MARKS_UNANSWERED = 0;
+const MAX_POSSIBLE_SCORE = MARKS_CORRECT * 5;
 
 // --- QUESTION BANK ---
 const questionSets = {
@@ -139,6 +342,14 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('copy', e => e.preventDefault());
 document.addEventListener('paste', e => e.preventDefault());
 
+// Warn on refresh/close while test is active
+window.addEventListener('beforeunload', function (e) {
+    if (isTestActive) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
+
 // Pick one random question from each category
 function generateTestPaper() {
     currentQuestions = [
@@ -158,13 +369,21 @@ function startTest() {
         alert("Please enter your Full Name before starting.");
         return;
     }
+    if (/\s/.test(rollInput)) {
+        alert("Roll Number error: Spaces are not allowed. Please re-enter your roll number.");
+        return;
+    }
     if (rollInput.length !== 10) {
-        alert("Roll Number error: Must be exactly 10 characters long.");
+        alert(`Roll Number error: You entered ${rollInput.length} character(s). Exactly 10 characters are required.`);
         return;
     }
 
     studentName = nameInput.toUpperCase();
     studentRoll = rollInput;
+
+    // Prevent double-start
+    const startBtn = document.getElementById("start-btn");
+    startBtn.disabled = true;
 
     document.getElementById("login-container").style.display = "none";
     document.getElementById("quiz-area").style.display = "block";
@@ -205,7 +424,7 @@ function renderQuestions() {
             radio.value = option;
 
             label.appendChild(radio);
-            label.appendChild(document.createTextNode(" " + option));
+            label.appendChild(document.createTextNode(option));
             block.appendChild(label);
         });
 
@@ -228,7 +447,9 @@ function startTimer() {
 function updateTimerDisplay() {
     const minutes = Math.floor(timeLeft / 60).toString().padStart(2, "0");
     const seconds = (timeLeft % 60).toString().padStart(2, "0");
-    document.getElementById("timer-display").textContent = `Time Left: ${minutes}:${seconds}`;
+    const display = document.getElementById("timer-display");
+    display.textContent = `Time Left: ${minutes}:${seconds}`;
+    display.classList.toggle("time-critical", timeLeft <= 60 && timeLeft > 0);
 }
 
 function stopProctoring() {
@@ -248,16 +469,61 @@ function onVisibilityChange() {
 
 function getSelectedAnswer(questionId) {
     const selected = document.querySelector(`input[name="question_${questionId}"]:checked`);
-    return selected ? selected.value : "Not Answered";
+    return selected ? selected.value : null;
 }
 
-function collectAnswers() {
-    // Returns answers in fixed order: [quantitative, logical, verbal, dataInterpretation, technicalAptitude]
-    return currentQuestions.map(q => getSelectedAnswer(q.id));
+// Compares each selected answer against the correct answer for the SPECIFIC
+// question that was actually shown to this student (questions are randomized
+// per category, so scoring must be done here rather than by column position).
+function evaluateAnswers() {
+    return currentQuestions.map((question) => {
+        const selected = getSelectedAnswer(question.id);
+        let label, points;
+
+        if (selected === null) {
+            label = "UNANSWERED";
+            points = MARKS_UNANSWERED;
+        } else if (selected === question.a) {
+            label = "CORRECT";
+            points = MARKS_CORRECT;
+        } else {
+            label = "INCORRECT";
+            points = MARKS_WRONG;
+        }
+
+        return {
+            questionText: question.q,
+            selectedAnswer: selected,
+            correctAnswer: question.a,
+            label: label,
+            points: points
+        };
+    });
 }
 
-function submitToGoogleForm(answers, statusSuffix) {
+function totalScoreOf(evaluations) {
+    return evaluations.reduce((sum, e) => sum + e.points, 0);
+}
+
+// Formats one answer cell so the Sheet shows the answer, whether it was
+// right or wrong, and the correct answer for reference -- all without
+// needing any extra fields in the Google Form.
+function formatAnswerCell(evaluation) {
+    const shown = evaluation.selectedAnswer === null ? "Not Answered" : evaluation.selectedAnswer;
+    const sign = evaluation.points > 0 ? "+" : "";
+    if (evaluation.label === "INCORRECT") {
+        return `${shown} [${evaluation.label} ${sign}${evaluation.points} | Correct: ${evaluation.correctAnswer}]`;
+    }
+    return `${shown} [${evaluation.label} ${sign}${evaluation.points}]`;
+}
+
+function submitToGoogleForm(evaluations, statusSuffix) {
     const formUrl = `https://docs.google.com/forms/d/e/${GOOGLE_FORM_ID}/formResponse`;
+    const totalScore = totalScoreOf(evaluations);
+
+    const nameField = statusSuffix
+        ? `${studentName} ${statusSuffix} | Score: ${totalScore}/${MAX_POSSIBLE_SCORE}`
+        : `${studentName} | Score: ${totalScore}/${MAX_POSSIBLE_SCORE}`;
 
     const form = document.createElement("form");
     form.action = formUrl;
@@ -266,13 +532,13 @@ function submitToGoogleForm(answers, statusSuffix) {
     form.style.display = "none";
 
     const fields = {
-        [ENTRY_NAME]: statusSuffix ? `${studentName} ${statusSuffix}` : studentName,
+        [ENTRY_NAME]: nameField,
         [ENTRY_ROLL]: studentRoll,
-        [ENTRY_Q1]: answers[0] || "Not Answered",
-        [ENTRY_Q2]: answers[1] || "Not Answered",
-        [ENTRY_Q3]: answers[2] || "Not Answered",
-        [ENTRY_Q4]: answers[3] || "Not Answered",
-        [ENTRY_Q5]: answers[4] || "Not Answered"
+        [ENTRY_Q1]: formatAnswerCell(evaluations[0]),
+        [ENTRY_Q2]: formatAnswerCell(evaluations[1]),
+        [ENTRY_Q3]: formatAnswerCell(evaluations[2]),
+        [ENTRY_Q4]: formatAnswerCell(evaluations[3]),
+        [ENTRY_Q5]: formatAnswerCell(evaluations[4])
     };
 
     Object.keys(fields).forEach(entryName => {
@@ -288,7 +554,7 @@ function submitToGoogleForm(answers, statusSuffix) {
     document.body.removeChild(form);
 }
 
-function finishTest(answers, statusSuffix, showDisqualifiedScreen) {
+function finishTest(evaluations, statusSuffix, showDisqualifiedScreen) {
     if (hasSubmitted) return; // guard against double submission
     hasSubmitted = true;
 
@@ -296,7 +562,18 @@ function finishTest(answers, statusSuffix, showDisqualifiedScreen) {
     clearInterval(countdownTimer);
     stopProctoring();
 
-    submitToGoogleForm(answers, statusSuffix);
+    try {
+        submitToGoogleForm(evaluations, statusSuffix);
+    } catch (err) {
+        console.error("Submission error:", err);
+        const totalScore = totalScoreOf(evaluations);
+        alert(
+            "There was a problem submitting your test automatically.\n\n" +
+            "Please note this down and inform the proctor immediately:\n" +
+            `Name: ${studentName}\nRoll Number: ${studentRoll}\nScore: ${totalScore}/${MAX_POSSIBLE_SCORE}\n\n` +
+            "Do not close this window until the proctor confirms."
+        );
+    }
 
     document.getElementById("quiz-area").style.display = "none";
     document.getElementById("timer-display").style.display = "none";
@@ -311,20 +588,22 @@ function finishTest(answers, statusSuffix, showDisqualifiedScreen) {
 function disqualifyStudent(reason) {
     if (hasSubmitted || !isTestActive) return;
     document.getElementById("disqualification-reason").textContent = reason;
-    const answers = collectAnswers();
-    finishTest(answers, "[DISQUALIFIED]", true);
+    const evaluations = evaluateAnswers();
+    finishTest(evaluations, "[DISQUALIFIED]", true);
 }
 
 function handleManualSubmit() {
     if (!isTestActive) return;
-    const answers = collectAnswers();
-    finishTest(answers, "", false);
+    const submitBtn = document.getElementById("submit-btn");
+    submitBtn.disabled = true;
+    const evaluations = evaluateAnswers();
+    finishTest(evaluations, "", false);
 }
 
 function handleAutoSubmit() {
     if (!isTestActive) return;
-    const answers = collectAnswers();
-    finishTest(answers, "[TIME EXPIRED]", false);
+    const evaluations = evaluateAnswers();
+    finishTest(evaluations, "[TIME EXPIRED]", false);
 }
 </script>
 
