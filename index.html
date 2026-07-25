@@ -18,27 +18,35 @@
         .input-group input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; text-transform: uppercase; }
         #student-roll { text-transform: none; }
         .question-block { margin-bottom: 25px; padding: 15px; border-left: 4px solid #ff6600; background: #f9f9f9; }
+        .question-block p.q-text { font-weight: bold; margin-top: 0; }
         .option-label { display: block; margin: 8px 0; cursor: pointer; }
         button { background-color: #28a745; color: white; border: none; padding: 15px 25px; font-size: 18px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
         button:hover { background-color: #218838; }
         #disqualified-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; color: white; text-align: center; justify-content: center; align-items: center; flex-direction: column; font-size: 24px; z-index: 9999; background: rgba(220, 53, 69, 0.98); }
+        #submitted-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; color: white; text-align: center; justify-content: center; align-items: center; flex-direction: column; font-size: 24px; z-index: 9999; background: rgba(40, 167, 69, 0.98); }
         #quiz-area { display: none; }
     </style>
 </head>
 <body>
- 
+
 <div id="timer-display" class="timer-box" style="display: none;">Time Left: 05:00</div>
- 
+
 <div id="disqualified-screen">
     <h1>🔴 DISQUALIFIED</h1>
     <p id="disqualification-reason">You left the test window or switched tabs. Your session has been terminated.</p>
 </div>
- 
+
+<div id="submitted-screen">
+    <h1>✅ TEST SUBMITTED</h1>
+    <p>Thank you. Your responses have been recorded successfully.</p>
+    <p style="font-size:16px;">You may now close this window.</p>
+</div>
+
 <div class="company-header">InCred Finance</div>
- 
+
 <div class="container" id="login-container">
     <h2>Student Registration</h2>
-    
+
     <div class="instructions-box">
         <strong>⚠️ IMPORTANT TEST INSTRUCTIONS:</strong>
         <ul>
@@ -49,7 +57,7 @@
             <li><strong>Controls:</strong> Copying, pasting, and right-clicking are strictly disabled.</li>
         </ul>
     </div>
- 
+
     <div class="input-group">
         <label>Full Name * (Mandatory - Saved in BLOCK LETTERS):</label>
         <input type="text" id="student-name" placeholder="ENTER YOUR FULL NAME" required>
@@ -58,9 +66,9 @@
         <label>Roll Number * (Mandatory - Must be exactly 10 characters long):</label>
         <input type="text" id="student-roll" placeholder="Enter your 10-digit registration roll number" maxlength="10" required>
     </div>
-    <button type="button" onclick="startTest()">Start Aptitude Test</button>
+    <button type="button" id="start-btn" onclick="startTest()">Start Aptitude Test</button>
 </div>
- 
+
 <div class="container" id="quiz-area">
     <h2>Campus Recruitment Aptitude Test</h2>
     <p style="color: red;"><strong>Warning:</strong> Moving to another tab, window, or clicking outside will instantly disqualify you.</p>
@@ -69,18 +77,21 @@
         <button type="button" onclick="handleManualSubmit()">Submit Assessment</button>
     </form>
 </div>
- 
+
+<!-- Hidden iframe target so the Google Form POST doesn't navigate the page away -->
+<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
+
 <script>
 // --- GOOGLE FORM CONFIGURATION ---
-const GOOGLE_FORM_ID = "1FAIpQLSf7shAqF1eo0LVmGA2aK6ScU6wsfHYCH2AS3OWTMmVdNpaWBQ"; 
-const ENTRY_NAME = "entry.138963828"; 
-const ENTRY_ROLL = "entry.840056099"; 
-const ENTRY_Q1 = "entry.440299450";   
-const ENTRY_Q2 = "entry.1673505219";   
-const ENTRY_Q3 = "entry.1688443625";   
-const ENTRY_Q4 = "entry.1274515003";   
-const ENTRY_Q5 = "entry.913460114";   
- 
+const GOOGLE_FORM_ID = "1FAIpQLSf7shAqF1eo0LVmGA2aK6ScU6wsfHYCH2AS3OWTMmVdNpaWBQ";
+const ENTRY_NAME = "entry.138963828";
+const ENTRY_ROLL = "entry.840056099";
+const ENTRY_Q1 = "entry.440299450";
+const ENTRY_Q2 = "entry.1673505219";
+const ENTRY_Q3 = "entry.1688443625";
+const ENTRY_Q4 = "entry.1274515003";
+const ENTRY_Q5 = "entry.913460114";
+
 // --- QUESTION BANK ---
 const questionSets = {
     quantitative: [
@@ -114,20 +125,21 @@ const questionSets = {
         { id: 504, q: "What is the brain of a computer system called?", o: ["CPU", "RAM", "ALU", "Control Unit"], a: "CPU" }
     ]
 };
- 
+
 let currentQuestions = [];
 let isTestActive = false;
-let timeLeft = 300; 
-let countdownTimer;
+let timeLeft = 300;
+let countdownTimer = null;
 let studentName = "";
 let studentRoll = "";
- 
-// Disable hotkeys and context menu security features
+let hasSubmitted = false;
+
+// Disable copy/paste/right-click
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('copy', e => e.preventDefault());
 document.addEventListener('paste', e => e.preventDefault());
 
-// Select random question from each pool
+// Pick one random question from each category
 function generateTestPaper() {
     currentQuestions = [
         questionSets.quantitative[Math.floor(Math.random() * questionSets.quantitative.length)],
@@ -160,16 +172,161 @@ function startTest() {
 
     generateTestPaper();
     renderQuestions();
-    
+
     isTestActive = true;
+    timeLeft = 300;
     startTimer();
 
-    // FIXED: Proctoring listeners register only after validation and manual test ignition
-    window.addEventListener('blur', disqualifyStudent);
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) disqualifyStudent();
-    });
+    // Proctoring listeners register only after validation and manual test start
+    window.addEventListener('blur', onWindowBlur);
+    document.addEventListener('visibilitychange', onVisibilityChange);
 }
 
 function renderQuestions() {
     const container = document.getElementById("questions-container");
+    container.innerHTML = "";
+
+    currentQuestions.forEach((question, index) => {
+        const block = document.createElement("div");
+        block.className = "question-block";
+
+        const qText = document.createElement("p");
+        qText.className = "q-text";
+        qText.textContent = `Q${index + 1}. ${question.q}`;
+        block.appendChild(qText);
+
+        question.o.forEach((option) => {
+            const label = document.createElement("label");
+            label.className = "option-label";
+
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = `question_${question.id}`;
+            radio.value = option;
+
+            label.appendChild(radio);
+            label.appendChild(document.createTextNode(" " + option));
+            block.appendChild(label);
+        });
+
+        container.appendChild(block);
+    });
+}
+
+function startTimer() {
+    updateTimerDisplay();
+    countdownTimer = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        if (timeLeft <= 0) {
+            clearInterval(countdownTimer);
+            handleAutoSubmit();
+        }
+    }, 1000);
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(timeLeft / 60).toString().padStart(2, "0");
+    const seconds = (timeLeft % 60).toString().padStart(2, "0");
+    document.getElementById("timer-display").textContent = `Time Left: ${minutes}:${seconds}`;
+}
+
+function stopProctoring() {
+    window.removeEventListener('blur', onWindowBlur);
+    document.removeEventListener('visibilitychange', onVisibilityChange);
+}
+
+function onWindowBlur() {
+    disqualifyStudent("You left the test window or switched tabs. Your session has been terminated.");
+}
+
+function onVisibilityChange() {
+    if (document.hidden) {
+        disqualifyStudent("You left the test window or switched tabs. Your session has been terminated.");
+    }
+}
+
+function getSelectedAnswer(questionId) {
+    const selected = document.querySelector(`input[name="question_${questionId}"]:checked`);
+    return selected ? selected.value : "Not Answered";
+}
+
+function collectAnswers() {
+    // Returns answers in fixed order: [quantitative, logical, verbal, dataInterpretation, technicalAptitude]
+    return currentQuestions.map(q => getSelectedAnswer(q.id));
+}
+
+function submitToGoogleForm(answers, statusSuffix) {
+    const formUrl = `https://docs.google.com/forms/d/e/${GOOGLE_FORM_ID}/formResponse`;
+
+    const form = document.createElement("form");
+    form.action = formUrl;
+    form.method = "POST";
+    form.target = "hidden_iframe";
+    form.style.display = "none";
+
+    const fields = {
+        [ENTRY_NAME]: statusSuffix ? `${studentName} ${statusSuffix}` : studentName,
+        [ENTRY_ROLL]: studentRoll,
+        [ENTRY_Q1]: answers[0] || "Not Answered",
+        [ENTRY_Q2]: answers[1] || "Not Answered",
+        [ENTRY_Q3]: answers[2] || "Not Answered",
+        [ENTRY_Q4]: answers[3] || "Not Answered",
+        [ENTRY_Q5]: answers[4] || "Not Answered"
+    };
+
+    Object.keys(fields).forEach(entryName => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = entryName;
+        input.value = fields[entryName];
+        form.appendChild(input);
+    });
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+
+function finishTest(answers, statusSuffix, showDisqualifiedScreen) {
+    if (hasSubmitted) return; // guard against double submission
+    hasSubmitted = true;
+
+    isTestActive = false;
+    clearInterval(countdownTimer);
+    stopProctoring();
+
+    submitToGoogleForm(answers, statusSuffix);
+
+    document.getElementById("quiz-area").style.display = "none";
+    document.getElementById("timer-display").style.display = "none";
+
+    if (showDisqualifiedScreen) {
+        document.getElementById("disqualified-screen").style.display = "flex";
+    } else {
+        document.getElementById("submitted-screen").style.display = "flex";
+    }
+}
+
+function disqualifyStudent(reason) {
+    if (hasSubmitted || !isTestActive) return;
+    document.getElementById("disqualification-reason").textContent = reason;
+    const answers = collectAnswers();
+    finishTest(answers, "[DISQUALIFIED]", true);
+}
+
+function handleManualSubmit() {
+    if (!isTestActive) return;
+    const answers = collectAnswers();
+    finishTest(answers, "", false);
+}
+
+function handleAutoSubmit() {
+    if (!isTestActive) return;
+    const answers = collectAnswers();
+    finishTest(answers, "[TIME EXPIRED]", false);
+}
+</script>
+
+</body>
+</html>
