@@ -6,72 +6,76 @@
     <title>InCred Finance - Campus Aptitude Test</title>
     <style>
         :root {
-            --brand-navy: #14213d;
-            --brand-orange: #ff6600;
-            --brand-orange-dark: #e05a00;
-            --bg: #f2f4f8;
-            --text-dark: #1f2430;
-            --text-muted: #5a6270;
-            --danger: #dc3545;
-            --success: #28a745;
+            --orange: #ff7900;
+            --orange-dark: #d96700;
+            --grey-bg: #f2f2f2;
+            --grey-border: #dcdcdc;
+            --grey-card: #fafafa;
+            --text-dark: #2b2b2b;
+            --text-muted: #6e6e6e;
+            --white: #ffffff;
+            --danger: #c0392b;
+            --warning-bg: #fff3cd;
+            --warning-border: #ffc107;
+            --warning-text: #6b5300;
         }
 
         * { box-sizing: border-box; }
 
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background-color: var(--bg);
+            background-color: var(--grey-bg);
             margin: 0;
-            padding: 24px 16px;
+            padding: 28px 24px;
             color: var(--text-dark);
-            user-select: none;
-            -webkit-user-select: none;
             line-height: 1.5;
         }
 
         .company-header {
             text-align: center;
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 700;
-            color: var(--brand-navy);
+            color: var(--text-dark);
             margin-bottom: 4px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
         }
+        .company-header span { color: var(--orange); }
 
         .company-subheader {
             text-align: center;
             font-size: 13px;
             color: var(--text-muted);
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             letter-spacing: 0.5px;
         }
 
         .container {
-            max-width: 760px;
+            max-width: 1100px;
             margin: 0 auto 20px auto;
-            background: #ffffff;
-            padding: 32px 36px;
+            background: var(--white);
+            padding: 40px 48px;
             border-radius: 10px;
-            box-shadow: 0 6px 24px rgba(20, 33, 61, 0.08);
-            border-top: 4px solid var(--brand-orange);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+            border-top: 4px solid var(--orange);
         }
+        .container.narrow { max-width: 640px; }
 
         h2 {
-            color: var(--brand-navy);
-            font-size: 21px;
-            border-bottom: 2px solid var(--brand-orange);
-            padding-bottom: 10px;
+            color: var(--text-dark);
+            font-size: 22px;
+            border-bottom: 2px solid var(--orange);
+            padding-bottom: 12px;
             margin-top: 0;
         }
 
         .instructions-box {
-            background: #fff8e6;
-            border-left: 4px solid #ffc107;
-            padding: 16px 18px;
+            background: var(--warning-bg);
+            border-left: 4px solid var(--warning-border);
+            padding: 18px 20px;
             margin-bottom: 24px;
             border-radius: 4px;
-            color: #6b5300;
+            color: var(--warning-text);
             font-size: 14px;
         }
         .instructions-box strong.title { font-size: 15px; }
@@ -82,8 +86,8 @@
             position: fixed;
             top: 18px;
             right: 18px;
-            background: var(--brand-navy);
-            color: #fff;
+            background: var(--text-dark);
+            color: var(--white);
             padding: 10px 20px;
             font-size: 18px;
             font-weight: 700;
@@ -93,138 +97,96 @@
             letter-spacing: 0.5px;
             transition: background-color 0.3s ease;
         }
-        .timer-box.time-critical {
-            background: var(--danger);
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
+        .timer-box.time-critical { background: var(--danger); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
         .input-group { margin-bottom: 18px; }
-        .input-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 700;
-            font-size: 14px;
-            color: var(--brand-navy);
-        }
-        .input-group .hint {
-            display: block;
-            font-weight: 400;
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 4px;
-        }
+        .input-group label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 14px; color: var(--text-dark); }
+        .input-group .hint { display: block; font-weight: 400; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
         .input-group input {
-            width: 100%;
-            padding: 11px 12px;
-            font-size: 15px;
-            border: 1px solid #ccd2dc;
-            border-radius: 6px;
-            text-transform: uppercase;
-            font-family: Arial, Helvetica, sans-serif;
-            transition: border-color 0.2s ease;
+            width: 100%; padding: 11px 12px; font-size: 15px;
+            border: 1px solid var(--grey-border); border-radius: 6px;
+            text-transform: uppercase; font-family: Arial, Helvetica, sans-serif;
         }
-        .input-group input:focus {
-            outline: none;
-            border-color: var(--brand-orange);
-            box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.12);
-        }
-        /* Roll number is an identifier, not a name -- do not force block letters */
+        .input-group input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255, 121, 0, 0.15); }
         #student-roll { text-transform: none; }
+
+        .section-label {
+            display: inline-block;
+            background: var(--text-dark);
+            color: var(--white);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+        }
 
         .question-block {
             margin-bottom: 22px;
-            padding: 16px 18px;
-            border-left: 4px solid var(--brand-orange);
-            background: #fafafa;
+            padding: 18px 20px;
+            border-left: 4px solid var(--orange);
+            background: var(--grey-card);
             border-radius: 0 6px 6px 0;
         }
-        .question-block p.q-text {
-            font-weight: 700;
-            margin: 0 0 10px 0;
-            font-size: 15px;
-            color: var(--brand-navy);
-        }
+        .question-block p.q-text { font-weight: 700; margin: 0 0 10px 0; font-size: 15px; color: var(--text-dark); white-space: pre-line; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
+        @media (max-width: 720px) { .options-grid { grid-template-columns: 1fr; } }
         .option-label {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 8px 0;
-            font-size: 14px;
-            cursor: pointer;
-            padding: 6px 8px;
-            border-radius: 4px;
-            transition: background-color 0.15s ease;
+            display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 14px;
+            cursor: pointer; padding: 6px 8px; border-radius: 4px; transition: background-color 0.15s ease;
         }
-        .option-label:hover { background: #f0f0f0; }
+        .option-label:hover { background: #eeeeee; }
         .option-label input[type="radio"] { cursor: pointer; width: 16px; height: 16px; }
 
+        .coding-block textarea {
+            width: 100%; min-height: 160px; padding: 12px; font-family: 'Courier New', monospace;
+            font-size: 13px; border: 1px solid var(--grey-border); border-radius: 6px; resize: vertical;
+        }
+        .data-table { border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+        .data-table th, .data-table td { border: 1px solid var(--grey-border); padding: 5px 10px; text-align: left; }
+        .data-table th { background: #ececec; }
+
         button {
-            background-color: var(--success);
-            color: white;
-            border: none;
-            padding: 14px 25px;
-            font-size: 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: 700;
-            margin-top: 8px;
-            font-family: Arial, Helvetica, sans-serif;
-            letter-spacing: 0.3px;
+            background-color: var(--orange); color: var(--white); border: none; padding: 14px 25px;
+            font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 700;
+            margin-top: 8px; font-family: Arial, Helvetica, sans-serif; letter-spacing: 0.3px;
             transition: background-color 0.15s ease, transform 0.05s ease;
         }
-        button:hover { background-color: #218838; }
+        button:hover { background-color: var(--orange-dark); }
         button:active { transform: translateY(1px); }
-        button:disabled {
-            background-color: #9fb0a3;
-            cursor: not-allowed;
-        }
+        button:disabled { background-color: #bfbfbf; cursor: not-allowed; }
 
         #disqualified-screen, #submitted-screen {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            color: white;
-            text-align: center;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            z-index: 9999;
-            padding: 20px;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            color: var(--white); text-align: center; justify-content: center; align-items: center;
+            flex-direction: column; z-index: 9999; padding: 20px;
         }
-        #disqualified-screen { background: rgba(178, 34, 52, 0.98); }
-        #submitted-screen { background: rgba(30, 126, 52, 0.98); }
+        #disqualified-screen { background: rgba(192, 57, 43, 0.98); }
+        #submitted-screen { background: rgba(43, 43, 43, 0.97); }
         #disqualified-screen h1, #submitted-screen h1 { font-size: 30px; margin-bottom: 10px; }
         #disqualified-screen p, #submitted-screen p { font-size: 16px; max-width: 480px; }
+        #submitted-screen h1 { color: var(--orange); }
 
-        #quiz-area { display: none; }
+        #welcome-container, #quiz-area, #login-container { display: none; }
 
         .warning-text {
-            color: var(--danger);
-            font-size: 13px;
-            font-weight: 700;
-            background: #fdecee;
-            padding: 10px 14px;
-            border-radius: 6px;
-            margin-bottom: 20px;
+            color: var(--danger); font-size: 13px; font-weight: 700; background: #fdecea;
+            padding: 10px 14px; border-radius: 6px; margin-bottom: 20px;
         }
 
         @media (max-width: 600px) {
-            .container { padding: 22px 18px; }
-            .company-header { font-size: 21px; }
-            h2 { font-size: 18px; }
+            .container { padding: 24px 20px; }
+            .company-header { font-size: 22px; }
+            h2 { font-size: 19px; }
             .timer-box { top: 10px; right: 10px; padding: 8px 14px; font-size: 15px; }
         }
     </style>
 </head>
 <body>
 
-<div id="timer-display" class="timer-box" style="display: none;">Time Left: 05:00</div>
+<div id="timer-display" class="timer-box" style="display: none;">Time Left: 60:00</div>
 
 <div id="disqualified-screen">
     <h1>🔴 DISQUALIFIED</h1>
@@ -233,205 +195,263 @@
 
 <div id="submitted-screen">
     <h1>✅ Test Submitted</h1>
-    <p>Thank you. Your responses have been recorded successfully.</p>
-    <p style="font-size:14px; opacity:0.9;">You may now close this window.</p>
+    <p>Thank you for completing the InCred Finance Campus Recruitment Aptitude Test. Your responses have been recorded successfully.</p>
+    <p style="font-size:14px; opacity:0.85;">Our team will review your submission and reach out regarding next steps. You may now close this window.</p>
 </div>
 
-<div class="company-header">InCred Finance</div>
-<div class="company-subheader">Campus Recruitment &mdash; Aptitude Assessment</div>
+<div class="company-header">In<span>Cred</span> Finance</div>
+<div class="company-subheader">Campus Recruitment &mdash; Business Analyst (Risk / Marketing Analytics) &mdash; Aptitude Assessment</div>
 
-<div class="container" id="login-container">
+<!-- WELCOME SCREEN -->
+<div class="container narrow" id="welcome-container" style="display:block;">
+    <h2>Welcome</h2>
+    <p>You're about to begin the InCred Finance Campus Recruitment Aptitude Test for the Business Analyst (Risk / Marketing Analytics) role.</p>
+    <p>The test consists of 8 quantitative &amp; logical reasoning questions and 2 coding/SQL questions, to be completed in <strong>60 minutes</strong>. Please ensure you have a stable internet connection and a distraction-free environment before proceeding.</p>
+    <button type="button" onclick="showLogin()">Proceed to Registration</button>
+</div>
+
+<!-- LOGIN / REGISTRATION -->
+<div class="container narrow" id="login-container">
     <h2>Student Registration</h2>
-
     <div class="instructions-box">
         <strong class="title">⚠️ IMPORTANT TEST INSTRUCTIONS</strong>
         <ul>
             <li><strong>Mandatory:</strong> Both Name and Roll Number must be filled to start.</li>
-            <li><strong>Duration:</strong> You have exactly 5 minutes to complete the test.</li>
-            <li><strong>Marking Scheme:</strong> +3 marks for every correct answer, &minus;1 mark for every wrong answer. Unanswered questions receive 0.</li>
-            <li><strong>Proctoring Rules:</strong> Do NOT switch tabs, minimize the browser, or click outside the test window. Doing so will result in <strong>instant disqualification</strong>.</li>
-            <li><strong>Controls:</strong> Copying, pasting, and right-clicking are strictly disabled.</li>
+            <li><strong>Name format:</strong> Letters and spaces only.</li>
+            <li><strong>Roll Number format:</strong> Exactly 10 digits, numbers only.</li>
+            <li><strong>One attempt only:</strong> Each Roll Number can submit the test only once.</li>
+            <li><strong>Duration:</strong> 60 minutes total.</li>
+            <li><strong>Section 1 (8 questions):</strong> +3 for correct, &minus;1 for incorrect, 0 unanswered.</li>
+            <li><strong>Section 2 (2 questions):</strong> Coding/SQL, no negative marking.</li>
+            <li><strong>Proctoring:</strong> Switching tabs, minimizing, or clicking outside the window causes <strong>instant disqualification</strong>.</li>
+            <li><strong>Controls:</strong> Copying, pasting, and right-clicking are disabled throughout.</li>
         </ul>
     </div>
-
     <div class="input-group">
         <label>Full Name *</label>
         <input type="text" id="student-name" placeholder="ENTER YOUR FULL NAME" required>
-        <span class="hint">Mandatory. Recorded in BLOCK LETTERS.</span>
+        <span class="hint">Letters and spaces only. Recorded in BLOCK LETTERS.</span>
     </div>
     <div class="input-group">
         <label>Roll Number *</label>
-        <input type="text" id="student-roll" placeholder="Enter your 10-character registration roll number" maxlength="10" required>
-        <span class="hint">Mandatory. Must be exactly 10 characters, no spaces.</span>
+        <input type="text" id="student-roll" placeholder="Enter your 10-digit registration roll number" maxlength="10" inputmode="numeric" required>
+        <span class="hint">Exactly 10 digits, numbers only.</span>
     </div>
     <button type="button" id="start-btn" onclick="startTest()">Start Aptitude Test</button>
 </div>
 
+<!-- TEST AREA -->
 <div class="container" id="quiz-area">
     <h2>Campus Recruitment Aptitude Test</h2>
-    <p class="warning-text">⚠ Moving to another tab, window, or clicking outside will instantly disqualify you.</p>
-    <form id="quiz-form">
-        <div id="questions-container"></div>
-        <button type="button" id="submit-btn" onclick="handleManualSubmit()">Submit Assessment</button>
-    </form>
+    <p class="warning-text">⚠ Moving to another tab, window, or clicking outside will instantly disqualify you. Right-click, copy, and paste are disabled.</p>
+
+    <div class="section-label">SECTION 1 — Quantitative &amp; Logical Reasoning (+3 / -1)</div>
+    <div id="section1-container"></div>
+
+    <div class="section-label">SECTION 2 — Coding &amp; SQL (No Negative Marking)</div>
+    <div id="section2-container"></div>
+
+    <button type="button" id="submit-btn" onclick="handleManualSubmit()">Submit Assessment</button>
 </div>
 
-<!-- Hidden iframe target so the Google Form POST doesn't navigate the page away -->
-<iframe name="hidden_iframe" id="hidden_iframe" style="display:none;"></iframe>
-
 <script>
-// --- GOOGLE FORM CONFIGURATION ---
-const GOOGLE_FORM_ID = "1FAIpQLSf7shAqF1eo0LVmGA2aK6ScU6wsfHYCH2AS3OWTMmVdNpaWBQ";
-const ENTRY_NAME = "entry.138963828";
-const ENTRY_ROLL = "entry.840056099";
-const ENTRY_Q1 = "entry.440299450";
-const ENTRY_Q2 = "entry.1673505219";
-const ENTRY_Q3 = "entry.1688443625";
-const ENTRY_Q4 = "entry.1274515003";
-const ENTRY_Q5 = "entry.913460114";
+// ===================================================================
+// BACKEND CONFIGURATION
+// ===================================================================
+const SCRIPT_URL = "PASTE_YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL_HERE";
 
-const MARKS_CORRECT = 3;
-const MARKS_WRONG = -1;
-const MARKS_UNANSWERED = 0;
-const MAX_POSSIBLE_SCORE = MARKS_CORRECT * 5;
-
-// --- QUESTION BANK ---
-const questionSets = {
-    quantitative: [
-        { id: 101, q: "A car covers 150 km in 2.5 hours. What is its speed?", o: ["60 km/h", "50 km/h", "70 km/h", "65 km/h"], a: "60 km/h" },
-        { id: 102, q: "What is 15% of 1200?", o: ["180", "150", "160", "200"], a: "180" },
-        { id: 103, q: "A sum of money doubles itself in 5 years at simple interest. What is the rate?", o: ["20%", "10%", "15%", "25%"], a: "20%" },
-        { id: 104, q: "Find the average of first five prime numbers.", o: ["5.6", "4.8", "5.0", "6.2"], a: "5.6" }
-    ],
-    logical: [
-        { id: 201, q: "Complete the pattern: 2, 6, 12, 20, ?", o: ["30", "42", "36", "40"], a: "30" },
-        { id: 202, q: "Light is to Darkness as Knowledge is to:", o: ["Ignorance", "Intelligence", "Books", "School"], a: "Ignorance" },
-        { id: 203, q: "If CLOCK is coded as KCOLC, how is STEPS coded?", o: ["SPETS", "SPSTE", "SETPS", "STEPZ"], a: "SPETS" },
-        { id: 204, q: "Pointing to a man, a woman said, 'His mother is the only daughter of my father.' How is the woman related to the man?", o: ["Mother", "Sister", "Aunt", "Grandmother"], a: "Mother" }
-    ],
-    verbal: [
-        { id: 301, q: "Choose the synonym for 'Abandon':", o: ["Forsake", "Keep", "Cherish", "Adopt"], a: "Forsake" },
-        { id: 302, q: "Identify the correctly spelled word:", o: ["Accommodate", "Acomodate", "Accomodate", "Acommodate"], a: "Accommodate" },
-        { id: 303, q: "Antonym of the word 'Artificial' is:", o: ["Natural", "Solid", "Truthful", "Genuine"], a: "Natural" },
-        { id: 304, q: "Fill in the blank: She has been studying ___ morning.", o: ["since", "for", "from", "by"], a: "since" }
-    ],
-    dataInterpretation: [
-        { id: 401, q: "If Company X profits grew from $10M to $12M, what is the percentage growth?", o: ["20%", "15%", "25%", "10%"], a: "20%" },
-        { id: 402, q: "Average of 10, 20, 30, 40, and 50 is:", o: ["30", "25", "35", "40"], a: "30" },
-        { id: 403, q: "Ratio of 400 meters to 4 kilometers is:", o: ["1:10", "1:1", "1:100", "10:1"], a: "1:10" },
-        { id: 404, q: "A pie chart total angle is always:", o: ["360 degrees", "180 degrees", "90 degrees", "100 degrees"], a: "360 degrees" }
-    ],
-    technicalAptitude: [
-        { id: 501, q: "Which data structure operates on a Last In First Out (LIFO) basis?", o: ["Stack", "Queue", "Array", "Linked List"], a: "Stack" },
-        { id: 502, q: "What does HTML stand for?", o: ["HyperText Markup Language", "HighText Machine Language", "HyperText Marking Language", "None"], a: "HyperText Markup Language" },
-        { id: 503, q: "Which of the following is not an operating system?", o: ["Oracle", "Linux", "Windows", "macOS"], a: "Oracle" },
-        { id: 504, q: "What is the brain of a computer system called?", o: ["CPU", "RAM", "ALU", "Control Unit"], a: "CPU" }
-    ]
-};
-
-let currentQuestions = [];
+let sessionToken = null;
+let section1Questions = [];   // [{id, q, o}] — no correct answers, server-provided
+let section2Data = null;      // {q9:{text}, q10:{text, table}}
+let testDurationSeconds = 3600;
 let isTestActive = false;
-let timeLeft = 300;
+let timeLeft = 3600;
 let countdownTimer = null;
+let devtoolsCheckInterval = null;
 let studentName = "";
 let studentRoll = "";
 let hasSubmitted = false;
 
-// Disable copy/paste/right-click
+// --- Global controls (active at all times) ---
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('copy', e => e.preventDefault());
 document.addEventListener('paste', e => e.preventDefault());
 
-// Warn on refresh/close while test is active
 window.addEventListener('beforeunload', function (e) {
-    if (isTestActive) {
-        e.preventDefault();
-        e.returnValue = '';
-    }
+    if (isTestActive) { e.preventDefault(); e.returnValue = ''; }
 });
 
-// Pick one random question from each category
-function generateTestPaper() {
-    currentQuestions = [
-        questionSets.quantitative[Math.floor(Math.random() * questionSets.quantitative.length)],
-        questionSets.logical[Math.floor(Math.random() * questionSets.logical.length)],
-        questionSets.verbal[Math.floor(Math.random() * questionSets.verbal.length)],
-        questionSets.dataInterpretation[Math.floor(Math.random() * questionSets.dataInterpretation.length)],
-        questionSets.technicalAptitude[Math.floor(Math.random() * questionSets.technicalAptitude.length)]
-    ];
+function showLogin() {
+    document.getElementById("welcome-container").style.display = "none";
+    document.getElementById("login-container").style.display = "block";
 }
 
-function startTest() {
+async function startTest() {
     const nameInput = document.getElementById("student-name").value.trim();
     const rollInput = document.getElementById("student-roll").value.trim();
+    const startBtn = document.getElementById("start-btn");
 
+    const errors = [];
     if (!nameInput) {
-        alert("Please enter your Full Name before starting.");
+        errors.push("Full Name is required.");
+    } else if (!/^[A-Za-z\s]+$/.test(nameInput)) {
+        errors.push("Full Name can only contain letters and spaces (no numbers or special characters).");
+    }
+    if (!rollInput) {
+        errors.push("Roll Number is required.");
+    } else if (!/^[0-9]+$/.test(rollInput)) {
+        errors.push("Roll Number can only contain digits 0-9 (no letters or special characters).");
+    } else if (rollInput.length !== 10) {
+        errors.push(`Roll Number must be exactly 10 digits (you entered ${rollInput.length}).`);
+    }
+    if (errors.length > 0) {
+        alert("Please fix the following before starting:\n\n" + errors.map((e, i) => `${i + 1}. ${e}`).join("\n"));
         return;
     }
-    if (/\s/.test(rollInput)) {
-        alert("Roll Number error: Spaces are not allowed. Please re-enter your roll number.");
-        return;
-    }
-    if (rollInput.length !== 10) {
-        alert(`Roll Number error: You entered ${rollInput.length} character(s). Exactly 10 characters are required.`);
+
+    startBtn.disabled = true;
+    startBtn.textContent = "Starting Session...";
+
+    try {
+        const url = `${SCRIPT_URL}?action=startSession&roll=${encodeURIComponent(rollInput)}&name=${encodeURIComponent(nameInput)}`;
+        const response = await fetch(url);
+        const result = await response.json();
+
+        if (result.status === "duplicate") {
+            alert("This Roll Number has already submitted the test. Duplicate attempts are not allowed. Please contact the proctor if you believe this is an error.");
+            startBtn.disabled = false;
+            startBtn.textContent = "Start Aptitude Test";
+            return;
+        }
+        if (result.status !== "ok") {
+            throw new Error(result.error || "Unexpected server response");
+        }
+
+        sessionToken = result.token;
+        section1Questions = result.section1;
+        section2Data = result.section2;
+        testDurationSeconds = result.testDurationSeconds || 3600;
+        timeLeft = testDurationSeconds;
+
+    } catch (err) {
+        console.error("Failed to start session:", err);
+        alert(
+            "We couldn't connect to the test server. Please check your internet connection and try again.\n\n" +
+            "If this keeps happening, contact the proctor — do not attempt to reload repeatedly."
+        );
+        startBtn.disabled = false;
+        startBtn.textContent = "Start Aptitude Test";
         return;
     }
 
     studentName = nameInput.toUpperCase();
     studentRoll = rollInput;
 
-    // Prevent double-start
-    const startBtn = document.getElementById("start-btn");
-    startBtn.disabled = true;
-
     document.getElementById("login-container").style.display = "none";
     document.getElementById("quiz-area").style.display = "block";
     document.getElementById("timer-display").style.display = "block";
 
-    generateTestPaper();
-    renderQuestions();
+    renderSection1();
+    renderSection2();
 
     isTestActive = true;
-    timeLeft = 300;
     startTimer();
 
-    // Proctoring listeners register only after validation and manual test start
     window.addEventListener('blur', onWindowBlur);
     document.addEventListener('visibilitychange', onVisibilityChange);
+    document.addEventListener('keydown', blockDevToolsShortcuts);
+    devtoolsCheckInterval = setInterval(checkDevToolsOpen, 1500);
 }
 
-function renderQuestions() {
-    const container = document.getElementById("questions-container");
+// --- Rendering (no correct answers ever present client-side) ---
+function renderSection1() {
+    const container = document.getElementById("section1-container");
     container.innerHTML = "";
-
-    currentQuestions.forEach((question, index) => {
+    section1Questions.forEach((question, index) => {
         const block = document.createElement("div");
         block.className = "question-block";
-
         const qText = document.createElement("p");
         qText.className = "q-text";
         qText.textContent = `Q${index + 1}. ${question.q}`;
         block.appendChild(qText);
 
-        question.o.forEach((option) => {
+        const grid = document.createElement("div");
+        grid.className = "options-grid";
+        question.o.forEach((option, optIndex) => {
             const label = document.createElement("label");
             label.className = "option-label";
-
             const radio = document.createElement("input");
             radio.type = "radio";
-            radio.name = `question_${question.id}`;
-            radio.value = option;
-
+            radio.name = `mcq_${index}`;
+            radio.value = optIndex;
             label.appendChild(radio);
             label.appendChild(document.createTextNode(option));
-            block.appendChild(label);
+            grid.appendChild(label);
         });
-
+        block.appendChild(grid);
         container.appendChild(block);
     });
 }
 
+function renderSection2() {
+    const container = document.getElementById("section2-container");
+    container.innerHTML = "";
+
+    // Q9
+    const q9Block = document.createElement("div");
+    q9Block.className = "question-block coding-block";
+    const q9Text = document.createElement("p");
+    q9Text.className = "q-text";
+    q9Text.textContent = `Q9. ${section2Data.q9.text}`;
+    q9Block.appendChild(q9Text);
+    const q9Area = document.createElement("textarea");
+    q9Area.id = "q9-answer";
+    q9Area.placeholder = "Write your Python code / pseudo-code here...";
+    q9Block.appendChild(q9Area);
+    container.appendChild(q9Block);
+
+    // Q10
+    const q10Block = document.createElement("div");
+    q10Block.className = "question-block coding-block";
+    const q10Text = document.createElement("p");
+    q10Text.className = "q-text";
+    q10Text.textContent = `Q10. ${section2Data.q10.text}`;
+    q10Block.appendChild(q10Text);
+    q10Block.appendChild(buildDataTables(section2Data.q10.table));
+    const q10Area = document.createElement("textarea");
+    q10Area.id = "q10-answer";
+    q10Area.placeholder = "Write your SQL here...";
+    q10Block.appendChild(q10Area);
+    container.appendChild(q10Block);
+}
+
+function buildDataTables(tableData) {
+    const wrap = document.createElement("div");
+
+    const salesTable = document.createElement("table");
+    salesTable.className = "data-table";
+    salesTable.innerHTML = "<tr><th>Salesperson</th><th>Month_No</th><th>Revenue</th></tr>" +
+        tableData.sales.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
+    wrap.appendChild(document.createTextNode("Sales Table:"));
+    wrap.appendChild(salesTable);
+
+    const regionTable = document.createElement("table");
+    regionTable.className = "data-table";
+    regionTable.innerHTML = "<tr><th>Salesperson</th><th>Region</th></tr>" +
+        tableData.region.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
+    wrap.appendChild(document.createTextNode("Region Table:"));
+    wrap.appendChild(regionTable);
+
+    const note = document.createElement("p");
+    note.style.fontSize = "13px";
+    note.style.color = "var(--text-muted)";
+    note.textContent = "Month Table: Month 1 & 2 = Q1, Month 3 & 4 = Q2.";
+    wrap.appendChild(note);
+
+    return wrap;
+}
+
+// --- Timer ---
 function startTimer() {
     updateTimerDisplay();
     countdownTimer = setInterval(() => {
@@ -443,7 +463,6 @@ function startTimer() {
         }
     }, 1000);
 }
-
 function updateTimerDisplay() {
     const minutes = Math.floor(timeLeft / 60).toString().padStart(2, "0");
     const seconds = (timeLeft % 60).toString().padStart(2, "0");
@@ -452,110 +471,62 @@ function updateTimerDisplay() {
     display.classList.toggle("time-critical", timeLeft <= 60 && timeLeft > 0);
 }
 
+// --- Proctoring ---
 function stopProctoring() {
     window.removeEventListener('blur', onWindowBlur);
     document.removeEventListener('visibilitychange', onVisibilityChange);
+    document.removeEventListener('keydown', blockDevToolsShortcuts);
+    if (devtoolsCheckInterval) clearInterval(devtoolsCheckInterval);
 }
-
 function onWindowBlur() {
     disqualifyStudent("You left the test window or switched tabs. Your session has been terminated.");
 }
-
 function onVisibilityChange() {
     if (document.hidden) {
         disqualifyStudent("You left the test window or switched tabs. Your session has been terminated.");
     }
 }
-
-function getSelectedAnswer(questionId) {
-    const selected = document.querySelector(`input[name="question_${questionId}"]:checked`);
-    return selected ? selected.value : null;
+function blockDevToolsShortcuts(e) {
+    const key = e.key ? e.key.toUpperCase() : "";
+    if (key === "F12") { e.preventDefault(); return; }
+    if (e.ctrlKey && e.shiftKey && (key === "I" || key === "J" || key === "C")) { e.preventDefault(); return; }
+    if (e.ctrlKey && key === "U") { e.preventDefault(); return; }
+}
+// Heuristic devtools-open detection (not foolproof -- deterrent only)
+function checkDevToolsOpen() {
+    const widthDiff = window.outerWidth - window.innerWidth;
+    const heightDiff = window.outerHeight - window.innerHeight;
+    if (widthDiff > 160 || heightDiff > 160) {
+        disqualifyStudent("Developer tools were detected during the test.");
+    }
 }
 
-// Compares each selected answer against the correct answer for the SPECIFIC
-// question that was actually shown to this student (questions are randomized
-// per category, so scoring must be done here rather than by column position).
-function evaluateAnswers() {
-    return currentQuestions.map((question) => {
-        const selected = getSelectedAnswer(question.id);
-        let label, points;
-
-        if (selected === null) {
-            label = "UNANSWERED";
-            points = MARKS_UNANSWERED;
-        } else if (selected === question.a) {
-            label = "CORRECT";
-            points = MARKS_CORRECT;
-        } else {
-            label = "INCORRECT";
-            points = MARKS_WRONG;
-        }
-
-        return {
-            questionText: question.q,
-            selectedAnswer: selected,
-            correctAnswer: question.a,
-            label: label,
-            points: points
-        };
+// --- Answer collection ---
+function collectSection1Answers() {
+    return section1Questions.map((question, index) => {
+        const selected = document.querySelector(`input[name="mcq_${index}"]:checked`);
+        return selected ? parseInt(selected.value, 10) : null;
     });
 }
 
-function totalScoreOf(evaluations) {
-    return evaluations.reduce((sum, e) => sum + e.points, 0);
-}
-
-// Formats one answer cell so the Sheet shows the answer, whether it was
-// right or wrong, and the correct answer for reference -- all without
-// needing any extra fields in the Google Form.
-function formatAnswerCell(evaluation) {
-    const shown = evaluation.selectedAnswer === null ? "Not Answered" : evaluation.selectedAnswer;
-    const sign = evaluation.points > 0 ? "+" : "";
-    if (evaluation.label === "INCORRECT") {
-        return `${shown} [${evaluation.label} ${sign}${evaluation.points} | Correct: ${evaluation.correctAnswer}]`;
-    }
-    return `${shown} [${evaluation.label} ${sign}${evaluation.points}]`;
-}
-
-function submitToGoogleForm(evaluations, statusSuffix) {
-    const formUrl = `https://docs.google.com/forms/d/e/${GOOGLE_FORM_ID}/formResponse`;
-    const totalScore = totalScoreOf(evaluations);
-
-    const nameField = statusSuffix
-        ? `${studentName} ${statusSuffix} | Score: ${totalScore}/${MAX_POSSIBLE_SCORE}`
-        : `${studentName} | Score: ${totalScore}/${MAX_POSSIBLE_SCORE}`;
-
-    const form = document.createElement("form");
-    form.action = formUrl;
-    form.method = "POST";
-    form.target = "hidden_iframe";
-    form.style.display = "none";
-
-    const fields = {
-        [ENTRY_NAME]: nameField,
-        [ENTRY_ROLL]: studentRoll,
-        [ENTRY_Q1]: formatAnswerCell(evaluations[0]),
-        [ENTRY_Q2]: formatAnswerCell(evaluations[1]),
-        [ENTRY_Q3]: formatAnswerCell(evaluations[2]),
-        [ENTRY_Q4]: formatAnswerCell(evaluations[3]),
-        [ENTRY_Q5]: formatAnswerCell(evaluations[4])
+// --- Submission ---
+function submitToServer(status) {
+    const payload = {
+        token: sessionToken,
+        status: status,
+        section1Answers: collectSection1Answers(),
+        q9Answer: document.getElementById("q9-answer") ? document.getElementById("q9-answer").value : "",
+        q10Answer: document.getElementById("q10-answer") ? document.getElementById("q10-answer").value : ""
     };
 
-    Object.keys(fields).forEach(entryName => {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = entryName;
-        input.value = fields[entryName];
-        form.appendChild(input);
-    });
-
-    document.body.appendChild(form);
-    form.submit();
-    document.body.removeChild(form);
+    return fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+    }).then(res => res.json());
 }
 
-function finishTest(evaluations, statusSuffix, showDisqualifiedScreen) {
-    if (hasSubmitted) return; // guard against double submission
+async function finishTest(status, showDisqualifiedScreen) {
+    if (hasSubmitted) return;
     hasSubmitted = true;
 
     isTestActive = false;
@@ -563,14 +534,23 @@ function finishTest(evaluations, statusSuffix, showDisqualifiedScreen) {
     stopProctoring();
 
     try {
-        submitToGoogleForm(evaluations, statusSuffix);
+        const result = await submitToServer(status);
+        if (result.status === "invalid_session") {
+            alert(
+                "Your session could not be verified (it may have expired). Please note down your Name and " +
+                "Roll Number and inform the proctor immediately — your answers were not recorded automatically."
+            );
+        } else if (result.status === "duplicate") {
+            console.warn("Server reported this Roll Number was already submitted.");
+        } else if (result.status === "error") {
+            throw new Error(result.message || "Unknown server error");
+        }
     } catch (err) {
         console.error("Submission error:", err);
-        const totalScore = totalScoreOf(evaluations);
         alert(
             "There was a problem submitting your test automatically.\n\n" +
-            "Please note this down and inform the proctor immediately:\n" +
-            `Name: ${studentName}\nRoll Number: ${studentRoll}\nScore: ${totalScore}/${MAX_POSSIBLE_SCORE}\n\n` +
+            "Please inform the proctor immediately with your Name and Roll Number:\n" +
+            `Name: ${studentName}\nRoll Number: ${studentRoll}\n\n` +
             "Do not close this window until the proctor confirms."
         );
     }
@@ -588,22 +568,16 @@ function finishTest(evaluations, statusSuffix, showDisqualifiedScreen) {
 function disqualifyStudent(reason) {
     if (hasSubmitted || !isTestActive) return;
     document.getElementById("disqualification-reason").textContent = reason;
-    const evaluations = evaluateAnswers();
-    finishTest(evaluations, "[DISQUALIFIED]", true);
+    finishTest("DISQUALIFIED", true);
 }
-
 function handleManualSubmit() {
     if (!isTestActive) return;
-    const submitBtn = document.getElementById("submit-btn");
-    submitBtn.disabled = true;
-    const evaluations = evaluateAnswers();
-    finishTest(evaluations, "", false);
+    document.getElementById("submit-btn").disabled = true;
+    finishTest("Completed", false);
 }
-
 function handleAutoSubmit() {
     if (!isTestActive) return;
-    const evaluations = evaluateAnswers();
-    finishTest(evaluations, "[TIME EXPIRED]", false);
+    finishTest("TIME EXPIRED", false);
 }
 </script>
 
