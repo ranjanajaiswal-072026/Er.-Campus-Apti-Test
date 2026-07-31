@@ -1,585 +1,361 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>InCred Finance - Campus Aptitude Test</title>
-    <style>
-        :root {
-            --orange: #ff7900;
-            --orange-dark: #d96700;
-            --grey-bg: #f2f2f2;
-            --grey-border: #dcdcdc;
-            --grey-card: #fafafa;
-            --text-dark: #2b2b2b;
-            --text-muted: #6e6e6e;
-            --white: #ffffff;
-            --danger: #c0392b;
-            --warning-bg: #fff3cd;
-            --warning-border: #ffc107;
-            --warning-text: #6b5300;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Recruitment & HR Evaluation Portal</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #ca8a04;
+    }
 
-        * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding: 20px; }
 
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background-color: var(--grey-bg);
-            margin: 0;
-            padding: 28px 24px;
-            color: var(--text-dark);
-            line-height: 1.5;
-        }
+    .container { max-width: 1200px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+    h1 { color: var(--primary); font-size: 1.8rem; }
 
-        .company-header {
-            text-align: center;
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-        }
-        .company-header span { color: var(--orange); }
+    .btn { background: var(--primary-light); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+    .btn:hover { background: var(--primary); }
+    .btn-success { background: var(--success); }
+    .btn-danger { background: var(--danger); }
+    .btn-secondary { background: var(--text-muted); }
 
-        .company-subheader {
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 24px;
-            letter-spacing: 0.5px;
-        }
+    .card { background: var(--surface); padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
 
-        .container {
-            max-width: 1100px;
-            margin: 0 auto 20px auto;
-            background: var(--white);
-            padding: 40px 48px;
-            border-radius: 10px;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
-            border-top: 4px solid var(--orange);
-        }
-        .container.narrow { max-width: 640px; }
+    /* Login Modal */
+    .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .login-box { background: white; padding: 30px; border-radius: 8px; width: 350px; text-align: center; }
+    .login-box input { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid var(--border); border-radius: 4px; }
 
-        h2 {
-            color: var(--text-dark);
-            font-size: 22px;
-            border-bottom: 2px solid var(--orange);
-            padding-bottom: 12px;
-            margin-top: 0;
-        }
+    /* Tabs */
+    .nav-tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+    .tab-btn { padding: 10px 20px; border: none; background: none; font-size: 1rem; cursor: pointer; border-bottom: 3px solid transparent; }
+    .tab-btn.active { border-color: var(--primary-light); font-weight: bold; color: var(--primary-light); }
 
-        .instructions-box {
-            background: var(--warning-bg);
-            border-left: 4px solid var(--warning-border);
-            padding: 18px 20px;
-            margin-bottom: 24px;
-            border-radius: 4px;
-            color: var(--warning-text);
-            font-size: 14px;
-        }
-        .instructions-box strong.title { font-size: 15px; }
-        .instructions-box ul { margin: 8px 0 0 20px; padding: 0; }
-        .instructions-box li { margin-bottom: 6px; }
+    /* Table Styles */
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
+    th { background-color: #f1f5f9; color: var(--text-muted); }
 
-        .timer-box {
-            position: fixed;
-            top: 18px;
-            right: 18px;
-            background: var(--text-dark);
-            color: var(--white);
-            padding: 10px 20px;
-            font-size: 18px;
-            font-weight: 700;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            z-index: 1000;
-            letter-spacing: 0.5px;
-            transition: background-color 0.3s ease;
-        }
-        .timer-box.time-critical { background: var(--danger); animation: pulse 1s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
-
-        .input-group { margin-bottom: 18px; }
-        .input-group label { display: block; margin-bottom: 6px; font-weight: 700; font-size: 14px; color: var(--text-dark); }
-        .input-group .hint { display: block; font-weight: 400; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
-        .input-group input {
-            width: 100%; padding: 11px 12px; font-size: 15px;
-            border: 1px solid var(--grey-border); border-radius: 6px;
-            text-transform: uppercase; font-family: Arial, Helvetica, sans-serif;
-        }
-        .input-group input:focus { outline: none; border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255, 121, 0, 0.15); }
-        #student-roll { text-transform: none; }
-
-        .section-label {
-            display: inline-block;
-            background: var(--text-dark);
-            color: var(--white);
-            font-size: 12px;
-            font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 4px;
-            margin-bottom: 16px;
-            letter-spacing: 0.5px;
-        }
-
-        .question-block {
-            margin-bottom: 22px;
-            padding: 18px 20px;
-            border-left: 4px solid var(--orange);
-            background: var(--grey-card);
-            border-radius: 0 6px 6px 0;
-        }
-        .question-block p.q-text { font-weight: 700; margin: 0 0 10px 0; font-size: 15px; color: var(--text-dark); white-space: pre-line; }
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; }
-        @media (max-width: 720px) { .options-grid { grid-template-columns: 1fr; } }
-        .option-label {
-            display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 14px;
-            cursor: pointer; padding: 6px 8px; border-radius: 4px; transition: background-color 0.15s ease;
-        }
-        .option-label:hover { background: #eeeeee; }
-        .option-label input[type="radio"] { cursor: pointer; width: 16px; height: 16px; }
-
-        .coding-block textarea {
-            width: 100%; min-height: 160px; padding: 12px; font-family: 'Courier New', monospace;
-            font-size: 13px; border: 1px solid var(--grey-border); border-radius: 6px; resize: vertical;
-        }
-        .data-table { border-collapse: collapse; margin: 10px 0; font-size: 13px; }
-        .data-table th, .data-table td { border: 1px solid var(--grey-border); padding: 5px 10px; text-align: left; }
-        .data-table th { background: #ececec; }
-
-        button {
-            background-color: var(--orange); color: var(--white); border: none; padding: 14px 25px;
-            font-size: 16px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: 700;
-            margin-top: 8px; font-family: Arial, Helvetica, sans-serif; letter-spacing: 0.3px;
-            transition: background-color 0.15s ease, transform 0.05s ease;
-        }
-        button:hover { background-color: var(--orange-dark); }
-        button:active { transform: translateY(1px); }
-        button:disabled { background-color: #bfbfbf; cursor: not-allowed; }
-
-        #disqualified-screen, #submitted-screen {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            color: var(--white); text-align: center; justify-content: center; align-items: center;
-            flex-direction: column; z-index: 9999; padding: 20px;
-        }
-        #disqualified-screen { background: rgba(192, 57, 43, 0.98); }
-        #submitted-screen { background: rgba(43, 43, 43, 0.97); }
-        #disqualified-screen h1, #submitted-screen h1 { font-size: 30px; margin-bottom: 10px; }
-        #disqualified-screen p, #submitted-screen p { font-size: 16px; max-width: 480px; }
-        #submitted-screen h1 { color: var(--orange); }
-
-        #welcome-container, #quiz-area, #login-container { display: none; }
-
-        .warning-text {
-            color: var(--danger); font-size: 13px; font-weight: 700; background: #fdecea;
-            padding: 10px 14px; border-radius: 6px; margin-bottom: 20px;
-        }
-
-        @media (max-width: 600px) {
-            .container { padding: 24px 20px; }
-            .company-header { font-size: 22px; }
-            h2 { font-size: 19px; }
-            .timer-box { top: 10px; right: 10px; padding: 8px 14px; font-size: 15px; }
-        }
-    </style>
+    select, input[type="text"] { width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px; }
+    
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+    .badge-pass { background: #dcfce7; color: #15803d; }
+    .badge-fail { background: #fee2e2; color: #b91c1c; }
+    
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+  </style>
 </head>
 <body>
 
-<div id="timer-display" class="timer-box" style="display: none;">Time Left: 60:00</div>
-
-<div id="disqualified-screen">
-    <h1>🔴 DISQUALIFIED</h1>
-    <p id="disqualification-reason">You left the test window or switched tabs. Your session has been terminated.</p>
-</div>
-
-<div id="submitted-screen">
-    <h1>✅ Test Submitted</h1>
-    <p>Thank you for completing the InCred Finance Campus Recruitment Aptitude Test. Your responses have been recorded successfully.</p>
-    <p style="font-size:14px; opacity:0.85;">Our team will review your submission and reach out regarding next steps. You may now close this window.</p>
-</div>
-
-<div class="company-header">In<span>Cred</span> Finance</div>
-<div class="company-subheader">Campus Recruitment &mdash; Business Analyst (Risk / Marketing Analytics) &mdash; Aptitude Assessment</div>
-
-<!-- WELCOME SCREEN -->
-<div class="container narrow" id="welcome-container" style="display:block;">
-    <h2>Welcome</h2>
-    <p>You're about to begin the InCred Finance Campus Recruitment Aptitude Test for the Business Analyst (Risk / Marketing Analytics) role.</p>
-    <p>The test consists of 8 quantitative &amp; logical reasoning questions and 2 coding/SQL questions, to be completed in <strong>60 minutes</strong>. Please ensure you have a stable internet connection and a distraction-free environment before proceeding.</p>
-    <button type="button" onclick="showLogin()">Proceed to Registration</button>
-</div>
-
-<!-- LOGIN / REGISTRATION -->
-<div class="container narrow" id="login-container">
-    <h2>Student Registration</h2>
-    <div class="instructions-box">
-        <strong class="title">⚠️ IMPORTANT TEST INSTRUCTIONS</strong>
-        <ul>
-            <li><strong>Mandatory:</strong> Both Name and Roll Number must be filled to start.</li>
-            <li><strong>Name format:</strong> Letters and spaces only.</li>
-            <li><strong>Roll Number format:</strong> Exactly 10 digits, numbers only.</li>
-            <li><strong>One attempt only:</strong> Each Roll Number can submit the test only once.</li>
-            <li><strong>Duration:</strong> 60 minutes total.</li>
-            <li><strong>Section 1 (8 questions):</strong> +3 for correct, &minus;1 for incorrect, 0 unanswered.</li>
-            <li><strong>Section 2 (2 questions):</strong> Coding/SQL, no negative marking.</li>
-            <li><strong>Proctoring:</strong> Switching tabs, minimizing, or clicking outside the window causes <strong>instant disqualification</strong>.</li>
-            <li><strong>Controls:</strong> Copying, pasting, and right-clicking are disabled throughout.</li>
-        </ul>
+<div class="container">
+  <header>
+    <h1>Campus Recruitment Admin Portal</h1>
+    <div id="userInfo">
+      <button class="btn btn-secondary" onclick="showLoginModal()">HR Admin Login</button>
     </div>
-    <div class="input-group">
-        <label>Full Name *</label>
-        <input type="text" id="student-name" placeholder="ENTER YOUR FULL NAME" required>
-        <span class="hint">Letters and spaces only. Recorded in BLOCK LETTERS.</span>
+  </header>
+
+  <!-- HR Login Modal -->
+  <div id="loginModal" class="login-overlay">
+    <div class="login-box">
+      <h2>HR Admin Access</h2>
+      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Enter key (Demo Key: HR_ADMIN_2026)</p>
+      <input type="password" id="passkeyInput" placeholder="Enter HR Passkey">
+      <button class="btn" style="width: 100%;" onclick="login()">Authenticate</button>
     </div>
-    <div class="input-group">
-        <label>Roll Number *</label>
-        <input type="text" id="student-roll" placeholder="Enter your 10-digit registration roll number" maxlength="10" inputmode="numeric" required>
-        <span class="hint">Exactly 10 digits, numbers only.</span>
+  </div>
+
+  <!-- Dashboard Container -->
+  <div id="adminDashboard" style="display: none;">
+    <div class="nav-tabs">
+      <button class="tab-btn active" onclick="switchTab('testStage')">Stage 1: Test & Cutoff Evaluation</button>
+      <button class="tab-btn" onclick="switchTab('round1')">Stage 2: PI Round 1</button>
+      <button class="tab-btn" onclick="switchTab('round2')">Stage 3: PI Round 2</button>
     </div>
-    <button type="button" id="start-btn" onclick="startTest()">Start Aptitude Test</button>
-</div>
 
-<!-- TEST AREA -->
-<div class="container" id="quiz-area">
-    <h2>Campus Recruitment Aptitude Test</h2>
-    <p class="warning-text">⚠ Moving to another tab, window, or clicking outside will instantly disqualify you. Right-click, copy, and paste are disabled.</p>
+    <!-- Stage 1 View -->
+    <div id="testStageView" class="tab-content card">
+      <div class="toolbar">
+        <h2>Stage 1: Written Test Evaluation</h2>
+        <button class="btn btn-success" onclick="exportData('TEST')">📥 Download Stage 1 Excel (CSV)</button>
+      </div>
+      <table id="testTable">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Roll No.</th>
+            <th>Score</th>
+            <th>Cutoff Eligible</th>
+            <th>Manual Action</th>
+            <th>Round 1 Eligibility Status</th>
+            <th>Feedback</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="testTableBody"></tbody>
+      </table>
+    </div>
 
-    <div class="section-label">SECTION 1 — Quantitative &amp; Logical Reasoning (+3 / -1)</div>
-    <div id="section1-container"></div>
+    <!-- Stage 2 View -->
+    <div id="round1View" class="tab-content card" style="display: none;">
+      <div class="toolbar">
+        <h2>Stage 2: PI Round 1 Candidates</h2>
+        <button class="btn btn-success" onclick="exportData('ROUND1')">📥 Download Stage 2 Excel (CSV)</button>
+      </div>
+      <table id="round1Table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Roll No.</th>
+            <th>Stage 1 Outcome</th>
+            <th>Round 1 Feedback</th>
+            <th>Round 1 Status Decision</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="round1TableBody"></tbody>
+      </table>
+    </div>
 
-    <div class="section-label">SECTION 2 — Coding &amp; SQL (No Negative Marking)</div>
-    <div id="section2-container"></div>
-
-    <button type="button" id="submit-btn" onclick="handleManualSubmit()">Submit Assessment</button>
+    <!-- Stage 3 View -->
+    <div id="round2View" class="tab-content card" style="display: none;">
+      <div class="toolbar">
+        <h2>Stage 3: PI Round 2 Candidates</h2>
+        <button class="btn btn-success" onclick="exportData('ROUND2')">📥 Download Stage 3 Excel (CSV)</button>
+      </div>
+      <table id="round2Table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Roll No.</th>
+            <th>Round 1 Status</th>
+            <th>Round 2 Feedback</th>
+            <th>Final Selection Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="round2TableBody"></tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <script>
-// ===================================================================
-// BACKEND CONFIGURATION
-// ===================================================================
-const SCRIPT_URL = "PASTE_YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL_HERE";
+  let adminKey = "";
+  let candidateData = [
+    { id: 1, name: "Aarav Sharma", rollNumber: "CS202601", score: 85, autoEligible: true, overrideStatus: "AUTO", stage1Status: "Shortlisted for 1st Round PI", stage1Feedback: "Strong analytical skill", stage2Status: "Shortlisted for 2nd Round PI", stage2Feedback: "Good domain knowledge", stage3Status: "Selected in Final Process", stage3Feedback: "Excellent fit" },
+    { id: 2, name: "Priya Patel", rollNumber: "CS202602", score: 62, autoEligible: false, overrideStatus: "INCLUDE", stage1Status: "Shortlisted for 1st Round PI", stage1Feedback: "Included via special consideration", stage2Status: "Rejected in 1st Round PI", stage2Feedback: "Lacks core technical basics", stage3Status: "", stage3Feedback: "" },
+    { id: 3, name: "Rohan Verma", rollNumber: "EE202615", score: 91, autoEligible: true, overrideStatus: "EXCLUDE", stage1Status: "Rejected in Test Round", stage1Feedback: "Disqualified due to proctoring issue", stage2Status: "", stage2Feedback: "", stage3Status: "", stage3Feedback: "" }
+  ];
 
-let sessionToken = null;
-let section1Questions = [];   // [{id, q, o}] — no correct answers, server-provided
-let section2Data = null;      // {q9:{text}, q10:{text, table}}
-let testDurationSeconds = 3600;
-let isTestActive = false;
-let timeLeft = 3600;
-let countdownTimer = null;
-let devtoolsCheckInterval = null;
-let studentName = "";
-let studentRoll = "";
-let hasSubmitted = false;
+  function showLoginModal() {
+    document.getElementById('loginModal').style.display = 'flex';
+  }
 
-// --- Global controls (active at all times) ---
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('copy', e => e.preventDefault());
-document.addEventListener('paste', e => e.preventDefault());
-
-window.addEventListener('beforeunload', function (e) {
-    if (isTestActive) { e.preventDefault(); e.returnValue = ''; }
-});
-
-function showLogin() {
-    document.getElementById("welcome-container").style.display = "none";
-    document.getElementById("login-container").style.display = "block";
-}
-
-async function startTest() {
-    const nameInput = document.getElementById("student-name").value.trim();
-    const rollInput = document.getElementById("student-roll").value.trim();
-    const startBtn = document.getElementById("start-btn");
-
-    const errors = [];
-    if (!nameInput) {
-        errors.push("Full Name is required.");
-    } else if (!/^[A-Za-z\s]+$/.test(nameInput)) {
-        errors.push("Full Name can only contain letters and spaces (no numbers or special characters).");
-    }
-    if (!rollInput) {
-        errors.push("Roll Number is required.");
-    } else if (!/^[0-9]+$/.test(rollInput)) {
-        errors.push("Roll Number can only contain digits 0-9 (no letters or special characters).");
-    } else if (rollInput.length !== 10) {
-        errors.push(`Roll Number must be exactly 10 digits (you entered ${rollInput.length}).`);
-    }
-    if (errors.length > 0) {
-        alert("Please fix the following before starting:\n\n" + errors.map((e, i) => `${i + 1}. ${e}`).join("\n"));
-        return;
-    }
-
-    startBtn.disabled = true;
-    startBtn.textContent = "Starting Session...";
-
-    try {
-        const url = `${SCRIPT_URL}?action=startSession&roll=${encodeURIComponent(rollInput)}&name=${encodeURIComponent(nameInput)}`;
-        const response = await fetch(url);
-        const result = await response.json();
-
-        if (result.status === "duplicate") {
-            alert("This Roll Number has already submitted the test. Duplicate attempts are not allowed. Please contact the proctor if you believe this is an error.");
-            startBtn.disabled = false;
-            startBtn.textContent = "Start Aptitude Test";
-            return;
-        }
-        if (result.status !== "ok") {
-            throw new Error(result.error || "Unexpected server response");
-        }
-
-        sessionToken = result.token;
-        section1Questions = result.section1;
-        section2Data = result.section2;
-        testDurationSeconds = result.testDurationSeconds || 3600;
-        timeLeft = testDurationSeconds;
-
-    } catch (err) {
-        console.error("Failed to start session:", err);
-        alert(
-            "We couldn't connect to the test server. Please check your internet connection and try again.\n\n" +
-            "If this keeps happening, contact the proctor — do not attempt to reload repeatedly."
-        );
-        startBtn.disabled = false;
-        startBtn.textContent = "Start Aptitude Test";
-        return;
-    }
-
-    studentName = nameInput.toUpperCase();
-    studentRoll = rollInput;
-
-    document.getElementById("login-container").style.display = "none";
-    document.getElementById("quiz-area").style.display = "block";
-    document.getElementById("timer-display").style.display = "block";
-
-    renderSection1();
-    renderSection2();
-
-    isTestActive = true;
-    startTimer();
-
-    window.addEventListener('blur', onWindowBlur);
-    document.addEventListener('visibilitychange', onVisibilityChange);
-    document.addEventListener('keydown', blockDevToolsShortcuts);
-    devtoolsCheckInterval = setInterval(checkDevToolsOpen, 1500);
-}
-
-// --- Rendering (no correct answers ever present client-side) ---
-function renderSection1() {
-    const container = document.getElementById("section1-container");
-    container.innerHTML = "";
-    section1Questions.forEach((question, index) => {
-        const block = document.createElement("div");
-        block.className = "question-block";
-        const qText = document.createElement("p");
-        qText.className = "q-text";
-        qText.textContent = `Q${index + 1}. ${question.q}`;
-        block.appendChild(qText);
-
-        const grid = document.createElement("div");
-        grid.className = "options-grid";
-        question.o.forEach((option, optIndex) => {
-            const label = document.createElement("label");
-            label.className = "option-label";
-            const radio = document.createElement("input");
-            radio.type = "radio";
-            radio.name = `mcq_${index}`;
-            radio.value = optIndex;
-            label.appendChild(radio);
-            label.appendChild(document.createTextNode(option));
-            grid.appendChild(label);
-        });
-        block.appendChild(grid);
-        container.appendChild(block);
-    });
-}
-
-function renderSection2() {
-    const container = document.getElementById("section2-container");
-    container.innerHTML = "";
-
-    // Q9
-    const q9Block = document.createElement("div");
-    q9Block.className = "question-block coding-block";
-    const q9Text = document.createElement("p");
-    q9Text.className = "q-text";
-    q9Text.textContent = `Q9. ${section2Data.q9.text}`;
-    q9Block.appendChild(q9Text);
-    const q9Area = document.createElement("textarea");
-    q9Area.id = "q9-answer";
-    q9Area.placeholder = "Write your Python code / pseudo-code here...";
-    q9Block.appendChild(q9Area);
-    container.appendChild(q9Block);
-
-    // Q10
-    const q10Block = document.createElement("div");
-    q10Block.className = "question-block coding-block";
-    const q10Text = document.createElement("p");
-    q10Text.className = "q-text";
-    q10Text.textContent = `Q10. ${section2Data.q10.text}`;
-    q10Block.appendChild(q10Text);
-    q10Block.appendChild(buildDataTables(section2Data.q10.table));
-    const q10Area = document.createElement("textarea");
-    q10Area.id = "q10-answer";
-    q10Area.placeholder = "Write your SQL here...";
-    q10Block.appendChild(q10Area);
-    container.appendChild(q10Block);
-}
-
-function buildDataTables(tableData) {
-    const wrap = document.createElement("div");
-
-    const salesTable = document.createElement("table");
-    salesTable.className = "data-table";
-    salesTable.innerHTML = "<tr><th>Salesperson</th><th>Month_No</th><th>Revenue</th></tr>" +
-        tableData.sales.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join("");
-    wrap.appendChild(document.createTextNode("Sales Table:"));
-    wrap.appendChild(salesTable);
-
-    const regionTable = document.createElement("table");
-    regionTable.className = "data-table";
-    regionTable.innerHTML = "<tr><th>Salesperson</th><th>Region</th></tr>" +
-        tableData.region.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("");
-    wrap.appendChild(document.createTextNode("Region Table:"));
-    wrap.appendChild(regionTable);
-
-    const note = document.createElement("p");
-    note.style.fontSize = "13px";
-    note.style.color = "var(--text-muted)";
-    note.textContent = "Month Table: Month 1 & 2 = Q1, Month 3 & 4 = Q2.";
-    wrap.appendChild(note);
-
-    return wrap;
-}
-
-// --- Timer ---
-function startTimer() {
-    updateTimerDisplay();
-    countdownTimer = setInterval(() => {
-        timeLeft--;
-        updateTimerDisplay();
-        if (timeLeft <= 0) {
-            clearInterval(countdownTimer);
-            handleAutoSubmit();
-        }
-    }, 1000);
-}
-function updateTimerDisplay() {
-    const minutes = Math.floor(timeLeft / 60).toString().padStart(2, "0");
-    const seconds = (timeLeft % 60).toString().padStart(2, "0");
-    const display = document.getElementById("timer-display");
-    display.textContent = `Time Left: ${minutes}:${seconds}`;
-    display.classList.toggle("time-critical", timeLeft <= 60 && timeLeft > 0);
-}
-
-// --- Proctoring ---
-function stopProctoring() {
-    window.removeEventListener('blur', onWindowBlur);
-    document.removeEventListener('visibilitychange', onVisibilityChange);
-    document.removeEventListener('keydown', blockDevToolsShortcuts);
-    if (devtoolsCheckInterval) clearInterval(devtoolsCheckInterval);
-}
-function onWindowBlur() {
-    disqualifyStudent("You left the test window or switched tabs. Your session has been terminated.");
-}
-function onVisibilityChange() {
-    if (document.hidden) {
-        disqualifyStudent("You left the test window or switched tabs. Your session has been terminated.");
-    }
-}
-function blockDevToolsShortcuts(e) {
-    const key = e.key ? e.key.toUpperCase() : "";
-    if (key === "F12") { e.preventDefault(); return; }
-    if (e.ctrlKey && e.shiftKey && (key === "I" || key === "J" || key === "C")) { e.preventDefault(); return; }
-    if (e.ctrlKey && key === "U") { e.preventDefault(); return; }
-}
-// Heuristic devtools-open detection (not foolproof -- deterrent only)
-function checkDevToolsOpen() {
-    const widthDiff = window.outerWidth - window.innerWidth;
-    const heightDiff = window.outerHeight - window.innerHeight;
-    if (widthDiff > 160 || heightDiff > 160) {
-        disqualifyStudent("Developer tools were detected during the test.");
-    }
-}
-
-// --- Answer collection ---
-function collectSection1Answers() {
-    return section1Questions.map((question, index) => {
-        const selected = document.querySelector(`input[name="mcq_${index}"]:checked`);
-        return selected ? parseInt(selected.value, 10) : null;
-    });
-}
-
-// --- Submission ---
-function submitToServer(status) {
-    const payload = {
-        token: sessionToken,
-        status: status,
-        section1Answers: collectSection1Answers(),
-        q9Answer: document.getElementById("q9-answer") ? document.getElementById("q9-answer").value : "",
-        q10Answer: document.getElementById("q10-answer") ? document.getElementById("q10-answer").value : ""
-    };
-
-    return fetch(SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    }).then(res => res.json());
-}
-
-async function finishTest(status, showDisqualifiedScreen) {
-    if (hasSubmitted) return;
-    hasSubmitted = true;
-
-    isTestActive = false;
-    clearInterval(countdownTimer);
-    stopProctoring();
-
-    try {
-        const result = await submitToServer(status);
-        if (result.status === "invalid_session") {
-            alert(
-                "Your session could not be verified (it may have expired). Please note down your Name and " +
-                "Roll Number and inform the proctor immediately — your answers were not recorded automatically."
-            );
-        } else if (result.status === "duplicate") {
-            console.warn("Server reported this Roll Number was already submitted.");
-        } else if (result.status === "error") {
-            throw new Error(result.message || "Unknown server error");
-        }
-    } catch (err) {
-        console.error("Submission error:", err);
-        alert(
-            "There was a problem submitting your test automatically.\n\n" +
-            "Please inform the proctor immediately with your Name and Roll Number:\n" +
-            `Name: ${studentName}\nRoll Number: ${studentRoll}\n\n` +
-            "Do not close this window until the proctor confirms."
-        );
-    }
-
-    document.getElementById("quiz-area").style.display = "none";
-    document.getElementById("timer-display").style.display = "none";
-
-    if (showDisqualifiedScreen) {
-        document.getElementById("disqualified-screen").style.display = "flex";
+  function login() {
+    const key = document.getElementById('passkeyInput').value;
+    if (key === "HR_ADMIN_2026") {
+      adminKey = key;
+      document.getElementById('loginModal').style.display = 'none';
+      document.getElementById('adminDashboard').style.display = 'block';
+      document.getElementById('userInfo').innerHTML = `<span>Logged in as <strong>HR Administrator</strong></span>`;
+      renderTables();
     } else {
-        document.getElementById("submitted-screen").style.display = "flex";
+      alert("Invalid Passkey. Please try again.");
     }
-}
+  }
 
-function disqualifyStudent(reason) {
-    if (hasSubmitted || !isTestActive) return;
-    document.getElementById("disqualification-reason").textContent = reason;
-    finishTest("DISQUALIFIED", true);
-}
-function handleManualSubmit() {
-    if (!isTestActive) return;
-    document.getElementById("submit-btn").disabled = true;
-    finishTest("Completed", false);
-}
-function handleAutoSubmit() {
-    if (!isTestActive) return;
-    finishTest("TIME EXPIRED", false);
-}
+  function switchTab(tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(view => view.style.display = 'none');
+
+    if (tabName === 'testStage') {
+      document.getElementById('testStageView').style.display = 'block';
+      event.target.classList.add('active');
+    } else if (tabName === 'round1') {
+      document.getElementById('round1View').style.display = 'block';
+      event.target.classList.add('active');
+    } else if (tabName === 'round2') {
+      document.getElementById('round2View').style.display = 'block';
+      event.target.classList.add('active');
+    }
+    renderTables();
+  }
+
+  function renderTables() {
+    renderTestTable();
+    renderRound1Table();
+    renderRound2Table();
+  }
+
+  function renderTestTable() {
+    const tbody = document.getElementById('testTableBody');
+    tbody.innerHTML = '';
+    candidateData.forEach(c => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${c.name}</td>
+          <td>${c.rollNumber}</td>
+          <td>${c.score}</td>
+          <td><span class="badge ${c.autoEligible ? 'badge-pass' : 'badge-fail'}">${c.autoEligible ? 'Passed' : 'Failed'}</span></td>
+          <td>
+            <select onchange="updateOverride(${c.id}, this.value)">
+              <option value="AUTO" ${c.overrideStatus === 'AUTO' ? 'selected' : ''}>Auto Cutoff</option>
+              <option value="INCLUDE" ${c.overrideStatus === 'INCLUDE' ? 'selected' : ''}>Manual Include</option>
+              <option value="EXCLUDE" ${c.overrideStatus === 'EXCLUDE' ? 'selected' : ''}>Manual Exclude</option>
+            </select>
+          </td>
+          <td>
+            <select id="t-status-${c.id}">
+              <option value="Shortlisted for 1st Round PI" ${c.stage1Status === 'Shortlisted for 1st Round PI' ? 'selected' : ''}>Shortlisted for 1st Round PI</option>
+              <option value="Rejected in Test Round" ${c.stage1Status === 'Rejected in Test Round' ? 'selected' : ''}>Rejected in Test Round</option>
+            </select>
+          </td>
+          <td><input type="text" id="t-feedback-${c.id}" value="${c.stage1Feedback || ''}"></td>
+          <td><button class="btn" onclick="saveStage1(${c.id})">Save</button></td>
+        </tr>
+      `;
+    });
+  }
+
+  function renderRound1Table() {
+    const tbody = document.getElementById('round1TableBody');
+    tbody.innerHTML = '';
+    const round1Pool = candidateData.filter(c => c.overrideStatus === 'INCLUDE' || (c.autoEligible && c.overrideStatus !== 'EXCLUDE'));
+
+    round1Pool.forEach(c => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${c.name}</td>
+          <td>${c.rollNumber}</td>
+          <td>${c.stage1Status}</td>
+          <td><input type="text" id="r1-feedback-${c.id}" value="${c.stage2Feedback || ''}"></td>
+          <td>
+            <select id="r1-status-${c.id}">
+              <option value="" ${!c.stage2Status ? 'selected' : ''}>-- Select Status --</option>
+              <option value="Shortlisted for 2nd Round PI" ${c.stage2Status === 'Shortlisted for 2nd Round PI' ? 'selected' : ''}>Shortlisted for 2nd Round PI</option>
+              <option value="Rejected in 1st Round PI" ${c.stage2Status === 'Rejected in 1st Round PI' ? 'selected' : ''}>Rejected in 1st Round PI</option>
+            </select>
+          </td>
+          <td><button class="btn" onclick="saveStage2(${c.id})">Save</button></td>
+        </tr>
+      `;
+    });
+  }
+
+  function renderRound2Table() {
+    const tbody = document.getElementById('round2TableBody');
+    tbody.innerHTML = '';
+    const round2Pool = candidateData.filter(c => c.stage2Status === 'Shortlisted for 2nd Round PI');
+
+    round2Pool.forEach(c => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${c.name}</td>
+          <td>${c.rollNumber}</td>
+          <td>${c.stage2Status}</td>
+          <td><input type="text" id="r2-feedback-${c.id}" value="${c.stage3Feedback || ''}"></td>
+          <td>
+            <select id="r2-status-${c.id}">
+              <option value="" ${!c.stage3Status ? 'selected' : ''}>-- Select Status --</option>
+              <option value="Selected in Final Process" ${c.stage3Status === 'Selected in Final Process' ? 'selected' : ''}>Selected in Final Process</option>
+              <option value="Rejected in 2nd Round PI" ${c.stage3Status === 'Rejected in 2nd Round PI' ? 'selected' : ''}>Rejected in 2nd Round PI</option>
+              <option value="Not Selected in Final Process" ${c.stage3Status === 'Not Selected in Final Process' ? 'selected' : ''}>Not Selected in Final Process</option>
+            </select>
+          </td>
+          <td><button class="btn" onclick="saveStage3(${c.id})">Save</button></td>
+        </tr>
+      `;
+    });
+  }
+
+  function updateOverride(id, val) {
+    let candidate = candidateData.find(c => c.id === id);
+    if (candidate) candidate.overrideStatus = val;
+  }
+
+  function saveStage1(id) {
+    let candidate = candidateData.find(c => c.id === id);
+    if (candidate) {
+      candidate.stage1Status = document.getElementById(`t-status-${id}`).value;
+      candidate.stage1Feedback = document.getElementById(`t-feedback-${id}`).value;
+      alert(`Updated ${candidate.name} Stage 1 details.`);
+      renderTables();
+    }
+  }
+
+  function saveStage2(id) {
+    let candidate = candidateData.find(c => c.id === id);
+    if (candidate) {
+      candidate.stage2Status = document.getElementById(`r1-status-${id}`).value;
+      candidate.stage2Feedback = document.getElementById(`r1-feedback-${id}`).value;
+      alert(`Updated ${candidate.name} Round 1 details.`);
+      renderTables();
+    }
+  }
+
+  function saveStage3(id) {
+    let candidate = candidateData.find(c => c.id === id);
+    if (candidate) {
+      candidate.stage3Status = document.getElementById(`r2-status-${id}`).value;
+      candidate.stage3Feedback = document.getElementById(`r2-feedback-${id}`).value;
+      alert(`Updated ${candidate.name} Round 2 details.`);
+      renderTables();
+    }
+  }
+
+  function exportData(stage) {
+    let csv = "Name,Roll Number,Feedback,Status\n";
+    
+    candidateData.forEach(c => {
+      let include = false;
+      let feedback = "";
+      let status = "";
+
+      if (stage === 'TEST') {
+        include = true;
+        feedback = c.stage1Feedback;
+        status = c.stage1Status;
+      } else if (stage === 'ROUND1') {
+        if (c.overrideStatus === 'INCLUDE' || (c.autoEligible && c.overrideStatus !== 'EXCLUDE')) {
+          include = true;
+          feedback = c.stage2Feedback;
+          status = c.stage2Status;
+        }
+      } else if (stage === 'ROUND2') {
+        if (c.stage2Status === 'Shortlisted for 2nd Round PI') {
+          include = true;
+          feedback = c.stage3Feedback;
+          status = c.stage3Status;
+        }
+      }
+
+      if (include) {
+        csv += `"${c.name}","${c.rollNumber}","${feedback || ''}","${status || ''}"\n`;
+      }
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Campus_Recruitment_${stage}_Export.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 </script>
-
 </body>
 </html>
