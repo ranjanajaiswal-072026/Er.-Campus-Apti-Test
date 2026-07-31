@@ -3,358 +3,469 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Campus Recruitment & HR Evaluation Portal</title>
+  <title>InCred Finance - Campus Aptitude Test</title>
   <style>
     :root {
-      --primary: #1e3a8a;
-      --primary-light: #3b82f6;
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --text: #0f172a;
-      --text-muted: #64748b;
-      --border: #e2e8f0;
+      --orange: #ff7900;
+      --orange-dark: #d96700;
+      --grey-bg: #f2f2f2;
+      --grey-border: #dcdcdc;
+      --grey-card: #fafafa;
+      --text-dark: #2b2b2b;
+      --text-muted: #6e6e6e;
+      --white: #ffffff;
+      --primary-blue: #1e3a8a;
       --success: #16a34a;
       --danger: #dc2626;
-      --warning: #ca8a04;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding: 20px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
+    body { background-color: var(--grey-bg); color: var(--text-dark); padding: 20px; line-height: 1.5; }
 
-    .container { max-width: 1200px; margin: 0 auto; }
-    header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
-    h1 { color: var(--primary); font-size: 1.8rem; }
-
-    .btn { background: var(--primary-light); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
-    .btn:hover { background: var(--primary); }
-    .btn-success { background: var(--success); }
-    .btn-danger { background: var(--danger); }
-    .btn-secondary { background: var(--text-muted); }
-
-    .card { background: var(--surface); padding: 20px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
-
-    /* Login Modal */
-    .login-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-    .login-box { background: white; padding: 30px; border-radius: 8px; width: 350px; text-align: center; }
-    .login-box input { width: 100%; padding: 10px; margin: 15px 0; border: 1px solid var(--border); border-radius: 4px; }
-
-    /* Tabs */
-    .nav-tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
-    .tab-btn { padding: 10px 20px; border: none; background: none; font-size: 1rem; cursor: pointer; border-bottom: 3px solid transparent; }
-    .tab-btn.active { border-color: var(--primary-light); font-weight: bold; color: var(--primary-light); }
-
-    /* Table Styles */
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 0.95rem; }
-    th { background-color: #f1f5f9; color: var(--text-muted); }
-
-    select, input[type="text"] { width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px; }
+    .header-bar { display: flex; justify-content: space-between; align-items: center; background: var(--white); padding: 15px 25px; border-radius: 8px; border-bottom: 3px solid var(--orange); margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .company-title { font-size: 1.4rem; font-weight: bold; color: var(--orange); }
     
-    .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+    .container { max-width: 900px; margin: 0 auto; }
+    .card { background: var(--white); border-radius: 8px; padding: 25px; border: 1px solid var(--grey-border); margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+
+    h2 { margin-bottom: 15px; color: var(--text-dark); font-size: 1.25rem; }
+    p { margin-bottom: 12px; color: var(--text-muted); font-size: 0.95rem; }
+
+    .form-group { margin-bottom: 18px; }
+    label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 0.9rem; }
+    input[type="text"], input[type="password"], select { width: 100%; padding: 10px; border: 1px solid var(--grey-border); border-radius: 4px; font-size: 0.95rem; }
+
+    .btn { background-color: var(--orange); color: var(--white); border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.95rem; transition: background 0.2s; }
+    .btn:hover { background-color: var(--orange-dark); }
+    .btn-blue { background-color: var(--primary-blue); }
+    .btn-secondary { background-color: #64748b; }
+    .btn-success { background-color: var(--success); }
+
+    .instructions-list { background: var(--grey-card); padding: 15px 20px; border-radius: 6px; border-left: 4px solid var(--orange); margin-bottom: 20px; }
+    .instructions-list li { margin-bottom: 8px; font-size: 0.9rem; }
+
+    /* HR Admin Dashboard Styles */
+    .admin-container { max-width: 1200px; margin: 0 auto; display: none; }
+    .nav-tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--grey-border); margin-bottom: 20px; }
+    .tab-btn { padding: 10px 18px; border: none; background: none; font-size: 0.95rem; cursor: pointer; border-bottom: 3px solid transparent; font-weight: bold; color: var(--text-muted); }
+    .tab-btn.active { border-color: var(--orange); color: var(--orange); }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--grey-border); font-size: 0.88rem; }
+    th { background: #f8fafc; color: var(--text-muted); }
+
+    .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
     .badge-pass { background: #dcfce7; color: #15803d; }
     .badge-fail { background: #fee2e2; color: #b91c1c; }
-    
-    .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 1000; }
+    .modal-box { background: white; padding: 25px; border-radius: 8px; width: 340px; text-align: center; }
   </style>
 </head>
 <body>
 
-<div class="container">
-  <header>
-    <h1>Campus Recruitment Admin Portal</h1>
-    <div id="userInfo">
-      <button class="btn btn-secondary" onclick="showLoginModal()">HR Admin Login</button>
-    </div>
-  </header>
-
-  <!-- HR Login Modal -->
-  <div id="loginModal" class="login-overlay">
-    <div class="login-box">
-      <h2>HR Admin Access</h2>
-      <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 5px;">Enter key (Demo Key: HR_ADMIN_2026)</p>
-      <input type="password" id="passkeyInput" placeholder="Enter HR Passkey">
-      <button class="btn" style="width: 100%;" onclick="login()">Authenticate</button>
-    </div>
-  </div>
-
-  <!-- Dashboard Container -->
-  <div id="adminDashboard" style="display: none;">
-    <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('testStage')">Stage 1: Test & Cutoff Evaluation</button>
-      <button class="tab-btn" onclick="switchTab('round1')">Stage 2: PI Round 1</button>
-      <button class="tab-btn" onclick="switchTab('round2')">Stage 3: PI Round 2</button>
-    </div>
-
-    <!-- Stage 1 View -->
-    <div id="testStageView" class="tab-content card">
-      <div class="toolbar">
-        <h2>Stage 1: Written Test Evaluation</h2>
-        <button class="btn btn-success" onclick="exportData('TEST')">📥 Download Stage 1 Excel (CSV)</button>
-      </div>
-      <table id="testTable">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Roll No.</th>
-            <th>Score</th>
-            <th>Cutoff Eligible</th>
-            <th>Manual Action</th>
-            <th>Round 1 Eligibility Status</th>
-            <th>Feedback</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="testTableBody"></tbody>
-      </table>
-    </div>
-
-    <!-- Stage 2 View -->
-    <div id="round1View" class="tab-content card" style="display: none;">
-      <div class="toolbar">
-        <h2>Stage 2: PI Round 1 Candidates</h2>
-        <button class="btn btn-success" onclick="exportData('ROUND1')">📥 Download Stage 2 Excel (CSV)</button>
-      </div>
-      <table id="round1Table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Roll No.</th>
-            <th>Stage 1 Outcome</th>
-            <th>Round 1 Feedback</th>
-            <th>Round 1 Status Decision</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="round1TableBody"></tbody>
-      </table>
-    </div>
-
-    <!-- Stage 3 View -->
-    <div id="round2View" class="tab-content card" style="display: none;">
-      <div class="toolbar">
-        <h2>Stage 3: PI Round 2 Candidates</h2>
-        <button class="btn btn-success" onclick="exportData('ROUND2')">📥 Download Stage 3 Excel (CSV)</button>
-      </div>
-      <table id="round2Table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Roll No.</th>
-            <th>Round 1 Status</th>
-            <th>Round 2 Feedback</th>
-            <th>Final Selection Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="round2TableBody"></tbody>
-      </table>
-    </div>
+<div class="header-bar">
+  <div class="company-title">InCred Finance | Campus Assessment</div>
+  <div>
+    <button class="btn btn-secondary" id="adminToggleBtn" onclick="openAdminModal()">HR Admin Access</button>
   </div>
 </div>
 
+<!-- STUDENT VIEW: REGISTRATION & TEST -->
+<div class="container" id="studentView">
+  
+  <!-- Step 1: Student Registration Form -->
+  <div class="card" id="registrationCard">
+    <h2>Student Registration & Instructions</h2>
+    
+    <div class="instructions-list">
+      <ul>
+        <li><strong>Mandatory:</strong> Both Name and Roll Number must be provided to start.</li>
+        <li><strong>Roll Number Format:</strong> Exactly 10 digits, numeric characters only.</li>
+        <li><strong>Attempt Policy:</strong> Each student roll number is allowed one test attempt.</li>
+        <li><strong>Passing Cutoff:</strong> Minimum score requirement is 70 points.</li>
+      </ul>
+    </div>
+
+    <div class="form-group">
+      <label>Full Name *</label>
+      <input type="text" id="studentName" placeholder="Enter your full name">
+    </div>
+
+    <div class="form-group">
+      <label>Roll Number *</label>
+      <input type="text" id="studentRoll" placeholder="Enter 10-digit registration roll number" maxlength="10">
+    </div>
+
+    <button class="btn" style="width: 100%;" onclick="startTest()">Start Aptitude Test</button>
+  </div>
+
+  <!-- Step 2: Student Quiz Screen -->
+  <div class="card" id="quizCard" style="display: none;">
+    <h2>Online Aptitude Assessment</h2>
+    <p>Answer the following questions carefully and click submit when finished.</p>
+    <hr style="margin-bottom: 20px; border: 0; border-top: 1px solid var(--grey-border);">
+
+    <div id="quizQuestions">
+      <div class="form-group">
+        <p><strong>Q1.</strong> If a car travels at 60 km/h for 2.5 hours, what is the total distance covered?</p>
+        <label><input type="radio" name="q1" value="150"> 150 km</label><br>
+        <label><input type="radio" name="q1" value="120"> 120 km</label><br>
+        <label><input type="radio" name="q1" value="180"> 180 km</label>
+      </div>
+
+      <div class="form-group">
+        <p><strong>Q2.</strong> What is the next number in the series: 3, 9, 27, 81, ...?</p>
+        <label><input type="radio" name="q2" value="243"> 243</label><br>
+        <label><input type="radio" name="q2" value="162"> 162</label><br>
+        <label><input type="radio" name="q2" value="324"> 324</label>
+      </div>
+    </div>
+
+    <button class="btn btn-success" style="width: 100%; margin-top: 15px;" onclick="submitQuiz()">Submit Assessment</button>
+  </div>
+
+  <!-- Step 3: Test Submitted Screen -->
+  <div class="card" id="thankYouCard" style="display: none; text-align: center;">
+    <h2 style="color: var(--success);">Test Submitted Successfully!</h2>
+    <p id="resultSummaryText">Your responses have been recorded in the system.</p>
+    <p>Please wait for the HR team to announce the 1st Round Personal Interview (PI) shortlist.</p>
+  </div>
+
+</div>
+
+<!-- HR ADMIN LOGIN MODAL -->
+<div class="modal-overlay" id="adminModal">
+  <div class="modal-box">
+    <h3>HR Admin Authentication</h3>
+    <p style="font-size: 0.8rem; margin-top: 5px;">Demo Passkey: <strong>HR_ADMIN_2026</strong></p>
+    <input type="password" id="adminPasskey" placeholder="Enter HR Passkey" style="margin: 15px 0;">
+    <button class="btn btn-blue" style="width: 100%; margin-bottom: 8px;" onclick="authenticateAdmin()">Login to Portal</button>
+    <button class="btn btn-secondary" style="width: 100%;" onclick="closeAdminModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- HR ADMIN DASHBOARD VIEW -->
+<div class="admin-container" id="adminDashboardView">
+  
+  <div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h2>HR Administrator Management Portal</h2>
+      <button class="btn btn-secondary" onclick="logoutAdmin()">Exit Admin Mode</button>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="switchAdminTab('testStage', event)">Stage 1: Test & Candidates</button>
+    <button class="tab-btn" onclick="switchAdminTab('round1', event)">Stage 2: PI Round 1</button>
+    <button class="tab-btn" onclick="switchAdminTab('round2', event)">Stage 3: PI Round 2</button>
+  </div>
+
+  <!-- Stage 1 View -->
+  <div id="testStageTab" class="card tab-content">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3>Stage 1: Test Scores & Manual Overrides</h3>
+      <button class="btn btn-success" onclick="exportCSV('TEST')">📥 Export Stage 1 CSV</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Roll No.</th>
+          <th>Score</th>
+          <th>Cutoff</th>
+          <th>Manual Action</th>
+          <th>Round 1 Eligibility</th>
+          <th>Feedback</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="testTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Stage 2 View -->
+  <div id="round1Tab" class="card tab-content" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3>Stage 2: 1st Round PI Evaluation</h3>
+      <button class="btn btn-success" onclick="exportCSV('ROUND1')">📥 Export Stage 2 CSV</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Roll No.</th>
+          <th>Stage 1 Outcome</th>
+          <th>Round 1 Feedback</th>
+          <th>Round 1 Decision</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="round1TableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- Stage 3 View -->
+  <div id="round2Tab" class="card tab-content" style="display: none;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+      <h3>Stage 3: 2nd Round PI & Final Selection</h3>
+      <button class="btn btn-success" onclick="exportCSV('ROUND2')">📥 Export Stage 3 CSV</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Roll No.</th>
+          <th>Round 1 Decision</th>
+          <th>Round 2 Feedback</th>
+          <th>Final Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="round2TableBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
 <script>
-  let adminKey = "";
-  let candidateData = [
-    { id: 1, name: "Aarav Sharma", rollNumber: "CS202601", score: 85, autoEligible: true, overrideStatus: "AUTO", stage1Status: "Shortlisted for 1st Round PI", stage1Feedback: "Strong analytical skill", stage2Status: "Shortlisted for 2nd Round PI", stage2Feedback: "Good domain knowledge", stage3Status: "Selected in Final Process", stage3Feedback: "Excellent fit" },
-    { id: 2, name: "Priya Patel", rollNumber: "CS202602", score: 62, autoEligible: false, overrideStatus: "INCLUDE", stage1Status: "Shortlisted for 1st Round PI", stage1Feedback: "Included via special consideration", stage2Status: "Rejected in 1st Round PI", stage2Feedback: "Lacks core technical basics", stage3Status: "", stage3Feedback: "" },
-    { id: 3, name: "Rohan Verma", rollNumber: "EE202615", score: 91, autoEligible: true, overrideStatus: "EXCLUDE", stage1Status: "Rejected in Test Round", stage1Feedback: "Disqualified due to proctoring issue", stage2Status: "", stage2Feedback: "", stage3Status: "", stage3Feedback: "" }
-  ];
+  let currentStudent = { name: '', roll: '' };
+  let activePasskey = '';
+  let candidatesList = [];
 
-  function showLoginModal() {
-    document.getElementById('loginModal').style.display = 'flex';
+  // STUDENT LOGIC
+  function startTest() {
+    const name = document.getElementById('studentName').value.trim();
+    const roll = document.getElementById('studentRoll').value.trim();
+
+    if (!name) { alert("Please enter your name."); return; }
+    if (!/^[0-9]{10}$/.test(roll)) { alert("Please enter a valid 10-digit numeric Roll Number."); return; }
+
+    currentStudent.name = name;
+    currentStudent.roll = roll;
+
+    document.getElementById('registrationCard').style.display = 'none';
+    document.getElementById('quizCard').style.display = 'block';
   }
 
-  function login() {
-    const key = document.getElementById('passkeyInput').value;
-    if (key === "HR_ADMIN_2026") {
-      adminKey = key;
-      document.getElementById('loginModal').style.display = 'none';
-      document.getElementById('adminDashboard').style.display = 'block';
-      document.getElementById('userInfo').innerHTML = `<span>Logged in as <strong>HR Administrator</strong></span>`;
-      renderTables();
+  function submitQuiz() {
+    let score = 0;
+    const q1 = document.querySelector('input[name="q1"]:checked');
+    const q2 = document.querySelector('input[name="q2"]:checked');
+
+    if (q1 && q1.value === '150') score += 50;
+    if (q2 && q2.value === '243') score += 50;
+
+    // Push score to backend
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(onTestSubmitted)
+        .submitStudentTest(currentStudent.name, currentStudent.roll, score);
     } else {
-      alert("Invalid Passkey. Please try again.");
+      // Offline / Local Preview Fallback
+      candidatesList.push({
+        id: Date.now(),
+        name: currentStudent.name,
+        rollNumber: currentStudent.roll,
+        score: score,
+        autoEligible: score >= 70,
+        overrideStatus: 'AUTO',
+        stage1Status: score >= 70 ? 'Shortlisted for 1st Round PI' : 'Rejected in Test Round',
+        stage1Feedback: 'Completed Online Test',
+        stage2Status: '', stage2Feedback: '', stage3Status: '', stage3Feedback: ''
+      });
+      onTestSubmitted({ success: true, score: score, passed: score >= 70 });
     }
   }
 
-  function switchTab(tabName) {
-    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(view => view.style.display = 'none');
-
-    if (tabName === 'testStage') {
-      document.getElementById('testStageView').style.display = 'block';
-      event.target.classList.add('active');
-    } else if (tabName === 'round1') {
-      document.getElementById('round1View').style.display = 'block';
-      event.target.classList.add('active');
-    } else if (tabName === 'round2') {
-      document.getElementById('round2View').style.display = 'block';
-      event.target.classList.add('active');
+  function onTestSubmitted(res) {
+    if (res.success) {
+      document.getElementById('quizCard').style.display = 'none';
+      document.getElementById('thankYouCard').style.display = 'block';
+      document.getElementById('resultSummaryText').innerText = `You scored ${res.score} points.`;
+    } else {
+      alert(res.message || "Error submitting test.");
     }
-    renderTables();
   }
 
-  function renderTables() {
-    renderTestTable();
-    renderRound1Table();
-    renderRound2Table();
+  // HR ADMIN LOGIC
+  function openAdminModal() { document.getElementById('adminModal').style.display = 'flex'; }
+  function closeAdminModal() { document.getElementById('adminModal').style.display = 'none'; }
+
+  function authenticateAdmin() {
+    const key = document.getElementById('adminPasskey').value.trim();
+    if (key === "HR_ADMIN_2026") {
+      activePasskey = key;
+      closeAdminModal();
+      document.getElementById('studentView').style.display = 'none';
+      document.getElementById('adminDashboardView').style.display = 'block';
+      fetchAdminData();
+    } else {
+      alert("Invalid HR Passkey.");
+    }
   }
 
-  function renderTestTable() {
-    const tbody = document.getElementById('testTableBody');
-    tbody.innerHTML = '';
-    candidateData.forEach(c => {
-      tbody.innerHTML += `
+  function logoutAdmin() {
+    document.getElementById('adminDashboardView').style.display = 'none';
+    document.getElementById('studentView').style.display = 'block';
+    activePasskey = '';
+  }
+
+  function fetchAdminData() {
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run
+        .withSuccessHandler(data => { candidatesList = data; renderAdminTables(); })
+        .getCandidateDataForAdmin(activePasskey);
+    } else {
+      renderAdminTables();
+    }
+  }
+
+  function switchAdminTab(tab, evt) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+    
+    evt.target.classList.add('active');
+    if (tab === 'testStage') document.getElementById('testStageTab').style.display = 'block';
+    if (tab === 'round1') document.getElementById('round1Tab').style.display = 'block';
+    if (tab === 'round2') document.getElementById('round2Tab').style.display = 'block';
+  }
+
+  function renderAdminTables() {
+    // Stage 1 Table
+    const tBody = document.getElementById('testTableBody');
+    tBody.innerHTML = '';
+    candidatesList.forEach(c => {
+      tBody.innerHTML += `
         <tr>
           <td>${c.name}</td>
           <td>${c.rollNumber}</td>
           <td>${c.score}</td>
           <td><span class="badge ${c.autoEligible ? 'badge-pass' : 'badge-fail'}">${c.autoEligible ? 'Passed' : 'Failed'}</span></td>
           <td>
-            <select onchange="updateOverride(${c.id}, this.value)">
+            <select id="ov-${c.id}">
               <option value="AUTO" ${c.overrideStatus === 'AUTO' ? 'selected' : ''}>Auto Cutoff</option>
               <option value="INCLUDE" ${c.overrideStatus === 'INCLUDE' ? 'selected' : ''}>Manual Include</option>
               <option value="EXCLUDE" ${c.overrideStatus === 'EXCLUDE' ? 'selected' : ''}>Manual Exclude</option>
             </select>
           </td>
           <td>
-            <select id="t-status-${c.id}">
+            <select id="s1-stat-${c.id}">
               <option value="Shortlisted for 1st Round PI" ${c.stage1Status === 'Shortlisted for 1st Round PI' ? 'selected' : ''}>Shortlisted for 1st Round PI</option>
               <option value="Rejected in Test Round" ${c.stage1Status === 'Rejected in Test Round' ? 'selected' : ''}>Rejected in Test Round</option>
             </select>
           </td>
-          <td><input type="text" id="t-feedback-${c.id}" value="${c.stage1Feedback || ''}"></td>
-          <td><button class="btn" onclick="saveStage1(${c.id})">Save</button></td>
+          <td><input type="text" id="s1-fb-${c.id}" value="${c.stage1Feedback || ''}"></td>
+          <td><button class="btn" style="padding:4px 8px; font-size:0.8rem;" onclick="saveCandidateStage('${c.id}', 'TEST')">Save</button></td>
         </tr>
       `;
     });
-  }
 
-  function renderRound1Table() {
-    const tbody = document.getElementById('round1TableBody');
-    tbody.innerHTML = '';
-    const round1Pool = candidateData.filter(c => c.overrideStatus === 'INCLUDE' || (c.autoEligible && c.overrideStatus !== 'EXCLUDE'));
-
-    round1Pool.forEach(c => {
-      tbody.innerHTML += `
+    // Stage 2 Table
+    const r1Body = document.getElementById('round1TableBody');
+    r1Body.innerHTML = '';
+    const r1Pool = candidatesList.filter(c => c.overrideStatus === 'INCLUDE' || (c.autoEligible && c.overrideStatus !== 'EXCLUDE'));
+    r1Pool.forEach(c => {
+      r1Body.innerHTML += `
         <tr>
           <td>${c.name}</td>
           <td>${c.rollNumber}</td>
           <td>${c.stage1Status}</td>
-          <td><input type="text" id="r1-feedback-${c.id}" value="${c.stage2Feedback || ''}"></td>
+          <td><input type="text" id="r1-fb-${c.id}" value="${c.stage2Feedback || ''}"></td>
           <td>
-            <select id="r1-status-${c.id}">
-              <option value="" ${!c.stage2Status ? 'selected' : ''}>-- Select Status --</option>
+            <select id="r1-stat-${c.id}">
+              <option value="" ${!c.stage2Status ? 'selected' : ''}>-- Select --</option>
               <option value="Shortlisted for 2nd Round PI" ${c.stage2Status === 'Shortlisted for 2nd Round PI' ? 'selected' : ''}>Shortlisted for 2nd Round PI</option>
               <option value="Rejected in 1st Round PI" ${c.stage2Status === 'Rejected in 1st Round PI' ? 'selected' : ''}>Rejected in 1st Round PI</option>
             </select>
           </td>
-          <td><button class="btn" onclick="saveStage2(${c.id})">Save</button></td>
+          <td><button class="btn" style="padding:4px 8px; font-size:0.8rem;" onclick="saveCandidateStage('${c.id}', 'ROUND1')">Save</button></td>
         </tr>
       `;
     });
-  }
 
-  function renderRound2Table() {
-    const tbody = document.getElementById('round2TableBody');
-    tbody.innerHTML = '';
-    const round2Pool = candidateData.filter(c => c.stage2Status === 'Shortlisted for 2nd Round PI');
-
-    round2Pool.forEach(c => {
-      tbody.innerHTML += `
+    // Stage 3 Table
+    const r2Body = document.getElementById('round2TableBody');
+    r2Body.innerHTML = '';
+    const r2Pool = candidatesList.filter(c => c.stage2Status === 'Shortlisted for 2nd Round PI');
+    r2Pool.forEach(c => {
+      r2Body.innerHTML += `
         <tr>
           <td>${c.name}</td>
           <td>${c.rollNumber}</td>
           <td>${c.stage2Status}</td>
-          <td><input type="text" id="r2-feedback-${c.id}" value="${c.stage3Feedback || ''}"></td>
+          <td><input type="text" id="r2-fb-${c.id}" value="${c.stage3Feedback || ''}"></td>
           <td>
-            <select id="r2-status-${c.id}">
-              <option value="" ${!c.stage3Status ? 'selected' : ''}>-- Select Status --</option>
+            <select id="r2-stat-${c.id}">
+              <option value="" ${!c.stage3Status ? 'selected' : ''}>-- Select --</option>
               <option value="Selected in Final Process" ${c.stage3Status === 'Selected in Final Process' ? 'selected' : ''}>Selected in Final Process</option>
               <option value="Rejected in 2nd Round PI" ${c.stage3Status === 'Rejected in 2nd Round PI' ? 'selected' : ''}>Rejected in 2nd Round PI</option>
               <option value="Not Selected in Final Process" ${c.stage3Status === 'Not Selected in Final Process' ? 'selected' : ''}>Not Selected in Final Process</option>
             </select>
           </td>
-          <td><button class="btn" onclick="saveStage3(${c.id})">Save</button></td>
+          <td><button class="btn" style="padding:4px 8px; font-size:0.8rem;" onclick="saveCandidateStage('${c.id}', 'ROUND2')">Save</button></td>
         </tr>
       `;
     });
   }
 
-  function updateOverride(id, val) {
-    let candidate = candidateData.find(c => c.id === id);
-    if (candidate) candidate.overrideStatus = val;
-  }
+  function saveCandidateStage(id, stage) {
+    let candidate = candidatesList.find(c => c.id.toString() === id.toString());
+    if (!candidate) return;
 
-  function saveStage1(id) {
-    let candidate = candidateData.find(c => c.id === id);
-    if (candidate) {
-      candidate.stage1Status = document.getElementById(`t-status-${id}`).value;
-      candidate.stage1Feedback = document.getElementById(`t-feedback-${id}`).value;
-      alert(`Updated ${candidate.name} Stage 1 details.`);
-      renderTables();
+    let override, status, feedback;
+    if (stage === 'TEST') {
+      override = document.getElementById(`ov-${id}`).value;
+      status = document.getElementById(`s1-stat-${id}`).value;
+      feedback = document.getElementById(`s1-fb-${id}`).value;
+      candidate.overrideStatus = override;
+      candidate.stage1Status = status;
+      candidate.stage1Feedback = feedback;
+    } else if (stage === 'ROUND1') {
+      status = document.getElementById(`r1-stat-${id}`).value;
+      feedback = document.getElementById(`r1-fb-${id}`).value;
+      candidate.stage2Status = status;
+      candidate.stage2Feedback = feedback;
+    } else if (stage === 'ROUND2') {
+      status = document.getElementById(`r2-stat-${id}`).value;
+      feedback = document.getElementById(`r2-fb-${id}`).value;
+      candidate.stage3Status = status;
+      candidate.stage3Feedback = feedback;
     }
-  }
 
-  function saveStage2(id) {
-    let candidate = candidateData.find(c => c.id === id);
-    if (candidate) {
-      candidate.stage2Status = document.getElementById(`r1-status-${id}`).value;
-      candidate.stage2Feedback = document.getElementById(`r1-feedback-${id}`).value;
-      alert(`Updated ${candidate.name} Round 1 details.`);
-      renderTables();
+    if (typeof google !== 'undefined' && google.script && google.script.run) {
+      google.script.run.updateCandidateByAdmin(activePasskey, id, stage, status, feedback, override);
     }
+    alert(`Updated details for ${candidate.name}.`);
+    renderAdminTables();
   }
 
-  function saveStage3(id) {
-    let candidate = candidateData.find(c => c.id === id);
-    if (candidate) {
-      candidate.stage3Status = document.getElementById(`r2-status-${id}`).value;
-      candidate.stage3Feedback = document.getElementById(`r2-feedback-${id}`).value;
-      alert(`Updated ${candidate.name} Round 2 details.`);
-      renderTables();
-    }
-  }
-
-  function exportData(stage) {
+  function exportCSV(stage) {
     let csv = "Name,Roll Number,Feedback,Status\n";
-    
-    candidateData.forEach(c => {
-      let include = false;
-      let feedback = "";
-      let status = "";
-
+    candidatesList.forEach(c => {
+      let include = false, fb = "", stat = "";
       if (stage === 'TEST') {
-        include = true;
-        feedback = c.stage1Feedback;
-        status = c.stage1Status;
+        include = true; fb = c.stage1Feedback; stat = c.stage1Status;
       } else if (stage === 'ROUND1') {
         if (c.overrideStatus === 'INCLUDE' || (c.autoEligible && c.overrideStatus !== 'EXCLUDE')) {
-          include = true;
-          feedback = c.stage2Feedback;
-          status = c.stage2Status;
+          include = true; fb = c.stage2Feedback; stat = c.stage2Status;
         }
       } else if (stage === 'ROUND2') {
         if (c.stage2Status === 'Shortlisted for 2nd Round PI') {
-          include = true;
-          feedback = c.stage3Feedback;
-          status = c.stage3Status;
+          include = true; fb = c.stage3Feedback; stat = c.stage3Status;
         }
       }
 
       if (include) {
-        csv += `"${c.name}","${c.rollNumber}","${feedback || ''}","${status || ''}"\n`;
+        csv += `"${c.name}","${c.rollNumber}","${fb || ''}","${stat || ''}"\n`;
       }
     });
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([csv], { type: 'text/csv' });
     const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    link.setAttribute("href", url);
-    link.setAttribute("download", `Campus_Recruitment_${stage}_Export.csv`);
-    document.body.appendChild(link);
+    link.href = URL.createObjectURL(blob);
+    link.download = `Stage_${stage}_Report.csv`;
     link.click();
-    document.body.removeChild(link);
   }
 </script>
 </body>
