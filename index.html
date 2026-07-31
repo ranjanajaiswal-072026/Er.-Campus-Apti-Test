@@ -1,447 +1,617 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>InCred Finance - Campus Recruitment Portal</title>
-  <style>
-    :root {
-      --orange: #ff7900;
-      --orange-dark: #d96700;
-      --grey-bg: #f2f2f2;
-      --grey-border: #dcdcdc;
-      --grey-card: #fafafa;
-      --text-dark: #2b2b2b;
-      --text-muted: #6e6e6e;
-      --white: #ffffff;
-      --primary-blue: #1e3a8a;
-      --success: #16a34a;
-      --danger: #dc2626;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InCred Finance — HR Admin Portal</title>
+<!-- SheetJS for client-side XLSX export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root {
+  --orange : #F47920;
+  --blue   : #0E489B;
+  --blue-dk: #0a3578;
+  --white  : #ffffff;
+  --bg     : #f3f4f6;
+  --text   : #1e1e1e;
+  --muted  : #6b7280;
+  --border : #dcdcdc;
+  --danger : #c0392b;
+  --success: #1a7a34;
+  --badge-green : #d4edda;
+  --badge-red   : #f8d7da;
+  --badge-yellow: #fff3cd;
+  --badge-blue  : #cfe2ff;
+  --badge-grey  : #e2e3e5;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, Helvetica, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, Helvetica, sans-serif; }
-    body { background-color: var(--grey-bg); color: var(--text-dark); padding: 24px; line-height: 1.5; }
+/* ── HEADER ── */
+.site-header { background: var(--blue); border-bottom: 4px solid var(--orange); padding: 0 28px; }
+.header-inner { max-width: 1300px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; padding: 20px 0 16px; gap: 5px; }
+.brand-name   { font-size: 30px; font-weight: 900; color: var(--white); text-transform: uppercase; letter-spacing: 2px; }
+.brand-name span { color: var(--orange); }
+.campus-title { font-size: 18px; font-weight: 800; color: var(--white); letter-spacing: 1px; }
+.portal-label { font-size: 13px; color: rgba(255,255,255,0.65); }
+.header-user  { position: absolute; top: 14px; right: 20px; color: rgba(255,255,255,0.75); font-size: 13px; }
+.header-user span { color: var(--orange); font-weight: 700; }
 
-    .header-bar { display: flex; justify-content: space-between; align-items: center; background: var(--white); padding: 16px 24px; border-radius: 8px; border-bottom: 4px solid var(--orange); margin-bottom: 24px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .company-title { font-size: 1.5rem; font-weight: bold; color: var(--orange); }
-    .company-subtitle { font-size: 0.85rem; color: var(--text-muted); }
+/* ── OTP LOGIN ── */
+#otp-screen { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 90px); }
+.login-card { background: var(--white); border-radius: 12px; padding: 40px 44px; width: 400px; box-shadow: 0 6px 28px rgba(0,0,0,0.1); border-top: 4px solid var(--orange); }
+.login-card h2 { font-size: 20px; color: var(--blue); margin-bottom: 6px; }
+.login-card .sub { font-size: 13px; color: var(--muted); margin-bottom: 26px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+.form-group input {
+  width: 100%; padding: 11px 12px; border: 1px solid var(--border);
+  border-radius: 6px; font-size: 14px; font-family: Arial, Helvetica, sans-serif;
+}
+.form-group input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(14,72,155,0.15); }
+.otp-input { letter-spacing: 8px; font-size: 22px; font-weight: 700; text-align: center; }
+.error-line { color: var(--danger); font-size: 13px; margin-top: 6px; display: none; }
+.info-line  { color: var(--success); font-size: 13px; margin-top: 6px; display: none; }
+.timer-line { font-size: 12px; color: var(--muted); margin-top: 6px; }
+.btn-full { width: 100%; padding: 12px; background: var(--orange); color: var(--white); border: none; border-radius: 6px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 6px; transition: background 0.15s; }
+.btn-full:hover { background: #d96700; }
+.btn-full:disabled { background: #bfbfbf; cursor: not-allowed; }
+.btn-text { background: none; border: none; color: var(--blue); font-size: 13px; cursor: pointer; margin-top: 10px; display: block; text-align: center; }
+.btn-text:hover { text-decoration: underline; }
+#otp-step { display: none; }
 
-    .container { max-width: 900px; margin: 0 auto; }
-    .admin-container { max-width: 1200px; margin: 0 auto; }
-    .card { background: var(--white); border-radius: 8px; padding: 25px; border: 1px solid var(--grey-border); margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+/* ── ADMIN SCREEN ── */
+#admin-screen { display: none; }
+.main-wrap { max-width: 1300px; margin: 0 auto; padding: 22px 18px; }
 
-    h2 { margin-bottom: 15px; color: var(--text-dark); font-size: 1.25rem; }
-    p { margin-bottom: 12px; color: var(--text-muted); font-size: 0.95rem; }
+/* ── STATS BAR ── */
+.stats-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.stat-card { background: var(--white); border-radius: 8px; padding: 14px 18px; flex: 1; min-width: 130px; border-top: 3px solid var(--orange); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+.stat-val   { font-size: 28px; font-weight: 900; color: var(--blue); }
+.stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
 
-    .form-group { margin-bottom: 18px; }
-    label { display: block; font-weight: bold; margin-bottom: 6px; font-size: 0.9rem; }
-    input[type="text"], input[type="password"], select { width: 100%; padding: 10px; border: 1px solid var(--grey-border); border-radius: 4px; font-size: 0.95rem; }
+/* ── TABS ── */
+.tab-bar { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 18px; }
+.tab-btn { padding: 10px 22px; border: none; background: none; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: color 0.15s, border-color 0.15s; }
+.tab-btn:hover  { color: var(--blue); }
+.tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
 
-    .btn { background-color: var(--orange); color: var(--white); border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 0.95rem; transition: background 0.2s; }
-    .btn:hover { background-color: var(--orange-dark); }
-    .btn-blue { background-color: var(--primary-blue); color: white; }
-    .btn-secondary { background-color: #64748b; color: white; }
-    .btn-success { background-color: var(--success); color: white; }
+/* ── TOOLBAR ── */
+.toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+.toolbar input[type=search] { flex: 1; min-width: 180px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; }
+.toolbar input[type=search]:focus { outline: none; border-color: var(--blue); }
+.btn { display: inline-flex; align-items: center; gap: 5px; padding: 9px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-orange  { background: var(--orange);  color: var(--white); }
+.btn-orange:hover  { background: #d96700; }
+.btn-outline { background: var(--white);   color: var(--text); border: 1px solid var(--border); }
+.btn-outline:hover { background: #f0f0f0; }
+.btn-save    { background: var(--success); color: var(--white); padding: 5px 12px; font-size: 12px; }
+.btn-save:hover { background: #155a27; }
+.viewer-note { font-size: 12px; color: var(--muted); background: #f0f4ff; border: 1px solid #c0d0f0; padding: 6px 12px; border-radius: 4px; }
 
-    .instructions-list { background: var(--grey-card); padding: 15px 20px; border-radius: 6px; border-left: 4px solid var(--orange); margin-bottom: 20px; }
-    .instructions-list li { margin-bottom: 8px; font-size: 0.9rem; }
+/* ── TABLE ── */
+.table-wrap   { background: var(--white); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+table  { width: 100%; border-collapse: collapse; font-size: 13px; }
+th     { background: var(--blue); color: var(--white); padding: 11px 12px; text-align: left; font-size: 12px; white-space: nowrap; position: sticky; top: 0; z-index: 2; }
+td     { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f7f9ff; }
+.name-cell { font-weight: 700; }
 
-    /* Admin Navigation & Tables */
-    .nav-tabs { display: flex; gap: 10px; border-bottom: 2px solid var(--grey-border); margin-bottom: 20px; }
-    .tab-btn { padding: 10px 18px; border: none; background: none; font-size: 0.95rem; cursor: pointer; border-bottom: 3px solid transparent; font-weight: bold; color: var(--text-muted); }
-    .tab-btn.active { border-color: var(--orange); color: var(--orange); }
+/* ── BADGES ── */
+.badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.bg-green  { background: var(--badge-green);  color: #155724; }
+.bg-red    { background: var(--badge-red);    color: #721c24; }
+.bg-yellow { background: var(--badge-yellow); color: #856404; }
+.bg-blue   { background: var(--badge-blue);   color: #084298; }
+.bg-grey   { background: var(--badge-grey);   color: #383d41; }
 
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-    th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--grey-border); font-size: 0.88rem; }
-    th { background: #f8fafc; color: var(--text-muted); }
+/* ── INLINE CONTROLS ── */
+select.isel, input.ifld {
+  width: 100%; padding: 5px 8px; border: 1px solid var(--border);
+  border-radius: 4px; font-size: 12px; background: var(--white); min-width: 150px;
+}
+input.ifld { min-width: 180px; }
+select.isel:focus, input.ifld:focus { outline: none; border-color: var(--blue); }
+select.isel:disabled, input.ifld:disabled { background: #f5f5f5; color: var(--muted); cursor: not-allowed; }
 
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; }
-    .badge-pass { background: #dcfce7; color: #15803d; }
-    .badge-fail { background: #fee2e2; color: #b91c1c; }
+/* ── SAVE DOT ── */
+.save-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #28a745; margin-left: 6px; opacity: 0; transition: opacity 0.5s; }
+.save-dot.show { opacity: 1; }
 
-    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-    .modal-box { background: white; padding: 25px; border-radius: 8px; width: 350px; text-align: center; }
-  </style>
+/* ── TOAST ── */
+#toast { position: fixed; bottom: 22px; right: 22px; background: var(--text); color: var(--white); padding: 12px 20px; border-radius: 6px; font-size: 13px; box-shadow: 0 4px 16px rgba(0,0,0,0.22); transform: translateY(20px); opacity: 0; transition: all 0.3s; z-index: 9999; pointer-events: none; }
+#toast.show { transform: translateY(0); opacity: 1; }
+#toast.ok  { border-left: 4px solid #28a745; }
+#toast.err { border-left: 4px solid var(--danger); }
+
+/* ── LOADING ── */
+#loading { position: fixed; inset: 0; background: rgba(255,255,255,0.88); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 8888; gap: 14px; }
+.spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── EMPTY STATE ── */
+.empty { text-align: center; padding: 48px 20px; color: var(--muted); }
+.empty .icon { font-size: 38px; margin-bottom: 12px; }
+
+/* ── SESSION BADGE ── */
+.session-bar { background: #e8f0fe; border-bottom: 1px solid #c0d0f0; padding: 7px 28px; font-size: 12px; color: var(--blue); display: flex; align-items: center; gap: 16px; justify-content: flex-end; }
+.session-bar strong { color: var(--text); }
+
+@media(max-width:700px){
+  .stats-bar { flex-direction: column; }
+  .tab-btn { padding: 8px 12px; font-size: 12px; }
+  .login-card { width: 100%; margin: 0 16px; }
+}
+</style>
 </head>
 <body>
 
-  <!-- App Header -->
-  <div class="header-bar">
-    <div>
-      <div class="company-title">InCred Finance</div>
-      <div class="company-subtitle">Campus Recruitment & Assessment Platform</div>
-    </div>
-    <div id="urlIndicator">
-      <? if (viewMode === 'admin') { ?>
-        <span class="badge" style="background:#e0f2fe; color:#0369a1; font-size:0.85rem;">HR Admin Mode</span>
-      <? } else { ?>
-        <span class="badge" style="background:#fef3c7; color:#92400e; font-size:0.85rem;">Student Portal</span>
-      <? } ?>
-    </div>
+<!-- HEADER -->
+<header class="site-header" style="position:relative;">
+  <div class="header-inner">
+    <div class="brand-name">In<span>Cred</span> Finance</div>
+    <div class="campus-title">Campus Recruitment</div>
+    <div class="portal-label">HR Admin Portal &nbsp;|&nbsp; FY 2026–27</div>
   </div>
+</header>
 
-  <!-- VIEW 1: STUDENT GENERIC URL PORTAL -->
-  <? if (viewMode !== 'admin') { ?>
-  <div class="container" id="studentView">
-    
-    <!-- Step 1: Student Registration Screen -->
-    <div class="card" id="registrationCard">
-      <h2>Student Registration & Instructions</h2>
-      
-      <div class="instructions-list">
-        <ul>
-          <li><strong>Mandatory:</strong> Both Name and Roll Number must be provided to begin.</li>
-          <li><strong>Roll Number Format:</strong> Exactly 10 digits, numeric characters only.</li>
-          <li><strong>One Attempt Limit:</strong> Each student roll number can submit the test only once.</li>
-          <li><strong>Qualification Benchmark:</strong> Passing cutoff score is set to 70 points.</li>
-        </ul>
-      </div>
+<!-- SESSION BAR (hidden until logged in) -->
+<div class="session-bar" id="session-bar" style="display:none;">
+  Logged in as <strong id="sess-name">—</strong> &nbsp;|&nbsp; Role: <strong id="sess-role">—</strong>
+  &nbsp;|&nbsp; Session expires in <strong id="sess-timer">—</strong>
+  &nbsp;|&nbsp; <a href="#" onclick="logout()" style="color:var(--danger);text-decoration:none;font-weight:700;">Sign Out</a>
+</div>
 
+<!-- LOADING -->
+<div id="loading"><div class="spinner"></div><div style="font-size:14px;color:#555;">Loading…</div></div>
+
+<!-- ══ OTP LOGIN ══ -->
+<div id="otp-screen">
+  <div class="login-card">
+    <h2>HR Portal Login</h2>
+    <p class="sub">Enter your registered HR email to receive a one-time password.</p>
+
+    <!-- Step 1: Email -->
+    <div id="email-step">
       <div class="form-group">
-        <label>Full Name *</label>
-        <input type="text" id="studentName" placeholder="Enter your full name">
+        <label>Work Email Address</label>
+        <input type="email" id="hr-email" placeholder="name@incred.com" autocomplete="off">
       </div>
+      <div class="error-line" id="err-email"></div>
+      <button class="btn-full" id="send-otp-btn" onclick="requestOTP()">Send OTP</button>
+    </div>
 
+    <!-- Step 2: OTP entry -->
+    <div id="otp-step">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:18px;">A 6-digit OTP has been sent to <strong id="otp-email-display">—</strong>. It is valid for 10 minutes.</p>
       <div class="form-group">
-        <label>Roll Number *</label>
-        <input type="text" id="studentRoll" placeholder="Enter 10-digit registration roll number" maxlength="10">
+        <label>Enter OTP</label>
+        <input type="text" id="otp-value" class="otp-input" placeholder="——————" maxlength="6" inputmode="numeric" autocomplete="off">
       </div>
-
-      <button class="btn" style="width: 100%;" onclick="startTest()">Start Aptitude Assessment</button>
-    </div>
-
-    <!-- Step 2: Assessment Screen -->
-    <div class="card" id="quizCard" style="display: none;">
-      <h2>Online Aptitude Assessment</h2>
-      <p>Answer the following questions carefully and click submit when finished.</p>
-      <hr style="margin-bottom: 20px; border: 0; border-top: 1px solid var(--grey-border);">
-
-      <div id="quizQuestions">
-        <div class="form-group">
-          <p><strong>Q1.</strong> If a car travels at 60 km/h for 2.5 hours, what is the total distance covered?</p>
-          <label><input type="radio" name="q1" value="150"> 150 km</label><br>
-          <label><input type="radio" name="q1" value="120"> 120 km</label><br>
-          <label><input type="radio" name="q1" value="180"> 180 km</label>
-        </div>
-
-        <div class="form-group">
-          <p><strong>Q2.</strong> What is the next number in the sequence: 3, 9, 27, 81, ...?</p>
-          <label><input type="radio" name="q2" value="243"> 243</label><br>
-          <label><input type="radio" name="q2" value="162"> 162</label><br>
-          <label><input type="radio" name="q2" value="324"> 324</label>
-        </div>
-      </div>
-
-      <button class="btn btn-success" style="width: 100%; margin-top: 15px;" onclick="submitQuiz()">Submit Assessment</button>
-    </div>
-
-    <!-- Step 3: Thank You Screen -->
-    <div class="card" id="thankYouCard" style="display: none; text-align: center;">
-      <h2 style="color: var(--success);">Test Submitted Successfully!</h2>
-      <p id="resultSummaryText">Your responses have been saved to the database.</p>
-      <p>Please await further updates regarding 1st Round Personal Interview (PI) shortlisting.</p>
-    </div>
-
-  </div>
-  <? } ?>
-
-  <!-- VIEW 2: DEDICATED HR ADMIN URL PORTAL (?view=admin) -->
-  <? if (viewMode === 'admin') { ?>
-  
-  <!-- HR Passkey Modal -->
-  <div class="modal-overlay" id="adminAuthModal">
-    <div class="modal-box">
-      <h3>HR Admin Login</h3>
-      <p style="font-size: 0.8rem; margin-top: 5px; color: var(--text-muted);">Passkey: <strong>HR_ADMIN_2026</strong></p>
-      <input type="password" id="adminPasskey" placeholder="Enter HR Passkey" style="margin: 15px 0;">
-      <button class="btn btn-blue" style="width: 100%;" onclick="authenticateHR()">Access Management Dashboard</button>
+      <div class="error-line" id="err-otp"></div>
+      <div class="info-line"  id="info-otp"></div>
+      <button class="btn-full" id="verify-otp-btn" onclick="verifyOTP()">Verify &amp; Sign In</button>
+      <button class="btn-text" onclick="resendOTP()">Resend OTP</button>
     </div>
   </div>
+</div>
 
-  <!-- HR Dashboard Container -->
-  <div class="admin-container" id="adminDashboardView" style="display: none;">
-    
-    <div class="card">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h2>HR Administrator Portal</h2>
-        <span>Status: <strong>Authenticated</strong></span>
-      </div>
+<!-- ══ ADMIN DASHBOARD ══ -->
+<div id="admin-screen">
+  <div class="main-wrap">
+
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-card"><div class="stat-val" id="st-total">—</div><div class="stat-label">Total Submissions</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-r1">—</div><div class="stat-label">Shortlisted for PI Round 1</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-r2">—</div><div class="stat-label">Shortlisted for PI Round 2</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-sel">—</div><div class="stat-label">Selected</div></div>
+      <div class="stat-card"><div class="stat-val" id="st-disq">—</div><div class="stat-label">Disqualified</div></div>
     </div>
 
-    <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchAdminTab('testStage', event)">Stage 1: Test & Cutoff Evaluation</button>
-      <button class="tab-btn" onclick="switchAdminTab('round1', event)">Stage 2: PI Round 1</button>
-      <button class="tab-btn" onclick="switchAdminTab('round2', event)">Stage 3: PI Round 2</button>
+    <!-- Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('test',this)">Test Results</button>
+      <button class="tab-btn" onclick="switchTab('round1',this)">Round 1 PI</button>
+      <button class="tab-btn" onclick="switchTab('round2',this)">Round 2 PI</button>
     </div>
 
-    <!-- Stage 1 View -->
-    <div id="testStageTab" class="card tab-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3>Stage 1: Written Test Scores & Manual Overrides</h3>
-        <button class="btn btn-success" onclick="exportCSV('TEST')">📥 Download Stage 1 Excel (CSV)</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Roll No.</th>
-            <th>Score</th>
-            <th>Cutoff Status</th>
-            <th>Manual Action</th>
-            <th>Round 1 Eligibility</th>
-            <th>Feedback</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="testTableBody"></tbody>
-      </table>
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <input type="search" id="search-box" placeholder="Search name or roll number…" oninput="renderTab()">
+      <button class="btn btn-outline" onclick="loadData()">↻ Refresh</button>
+      <button class="btn btn-orange"  onclick="downloadReport()">⬇ Download XLSX</button>
+      <span id="viewer-note" class="viewer-note" style="display:none;">👁 Viewer — read-only access</span>
     </div>
 
-    <!-- Stage 2 View -->
-    <div id="round1Tab" class="card tab-content" style="display: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3>Stage 2: 1st Round PI Candidates</h3>
-        <button class="btn btn-success" onclick="exportCSV('ROUND1')">📥 Download Stage 2 Excel (CSV)</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Roll No.</th>
-            <th>Stage 1 Outcome</th>
-            <th>Round 1 Feedback</th>
-            <th>Round 1 Decision</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="round1TableBody"></tbody>
-      </table>
-    </div>
-
-    <!-- Stage 3 View -->
-    <div id="round2Tab" class="card tab-content" style="display: none;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-        <h3>Stage 3: 2nd Round PI Candidates & Final Selection</h3>
-        <button class="btn btn-success" onclick="exportCSV('ROUND2')">📥 Download Stage 3 Excel (CSV)</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Roll No.</th>
-            <th>Round 1 Status</th>
-            <th>Round 2 Feedback</th>
-            <th>Final Selection Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="round2TableBody"></tbody>
-      </table>
-    </div>
-
+    <!-- Table -->
+    <div class="table-wrap"><div class="table-scroll"><div id="table-area"></div></div></div>
   </div>
-  <? } ?>
+</div>
+
+<div id="toast"></div>
 
 <script>
-  let currentStudent = { name: '', roll: '' };
-  let activePasskey = '';
-  let candidateData = [];
+// ── Config ──────────────────────────────────────────────────────────
+// Replace with your deployed Apps Script Web App URL (ends in /exec)
+const SCRIPT_URL = "PASTE_YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL_HERE";
 
-  // --- STUDENT FUNCTIONS ---
-  function startTest() {
-    const name = document.getElementById('studentName').value.trim();
-    const roll = document.getElementById('studentRoll').value.trim();
+const S_R1  = "Shortlisted for PI Round 1";
+const S_NQT = "Not Qualified in Test";
+const S_NQR1= "Not Qualified in PI Round 1";
+const S_R2  = "Shortlisted for PI Round 2";
+const S_NQR2= "Not Qualified in PI Round 2";
+const S_SEL = "Selected";
 
-    if (!name) { alert("Please enter your name."); return; }
-    if (!/^[0-9]{10}$/.test(roll)) { alert("Please enter a valid 10-digit numeric Roll Number."); return; }
+let hrToken = "", hrName = "", hrRole = "";
+let candidates = [], activeTab = "test";
+let sessExpiry = 0, sessTimerInterval = null;
+let otpEmail = "";
 
-    currentStudent.name = name;
-    currentStudent.roll = roll;
-
-    document.getElementById('registrationCard').style.display = 'none';
-    document.getElementById('quizCard').style.display = 'block';
+// ── Init ─────────────────────────────────────────────────────────────
+window.addEventListener("load", () => {
+  document.getElementById("loading").style.display = "none";
+  // Restore session from sessionStorage
+  const saved = sessionStorage.getItem("incred_hr_sess");
+  if (saved) {
+    try {
+      const s = JSON.parse(saved);
+      if (s.expiry > Date.now()) {
+        hrToken = s.token; hrName = s.name; hrRole = s.role; sessExpiry = s.expiry;
+        showAdminScreen(); loadData(); return;
+      }
+    } catch(e){}
   }
+  showOTPScreen();
+  document.getElementById("hr-email").addEventListener("keydown", e => { if(e.key==="Enter") requestOTP(); });
+  document.getElementById("otp-value").addEventListener("keydown", e => { if(e.key==="Enter") verifyOTP(); });
+});
 
-  function submitQuiz() {
-    let score = 0;
-    const q1 = document.querySelector('input[name="q1"]:checked');
-    const q2 = document.querySelector('input[name="q2"]:checked');
-
-    if (q1 && q1.value === '150') score += 50;
-    if (q2 && q2.value === '243') score += 50;
-
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run
-        .withSuccessHandler(onTestSubmitted)
-        .submitStudentTest(currentStudent.name, currentStudent.roll, score);
-    } else {
-      onTestSubmitted({ success: true, score: score, passed: score >= 70 });
+// ── OTP FLOW ─────────────────────────────────────────────────────────
+function showOTPScreen() {
+  document.getElementById("otp-screen").style.display    = "flex";
+  document.getElementById("admin-screen").style.display  = "none";
+  document.getElementById("session-bar").style.display   = "none";
+}
+async function requestOTP() {
+  const email = document.getElementById("hr-email").value.trim();
+  if (!email) { showErr("err-email","Please enter your email address."); return; }
+  clearErr("err-email");
+  const btn = document.getElementById("send-otp-btn");
+  btn.disabled = true; btn.textContent = "Sending…";
+  try {
+    const res  = await post({ hrAction:"requestOTP", email });
+    if (res.status === "not_registered") {
+      showErr("err-email","This email address is not registered. Please contact your HR administrator.");
+      btn.disabled = false; btn.textContent = "Send OTP"; return;
     }
-  }
+    if (res.status !== "ok") throw new Error(res.message || "Server error");
+    otpEmail = email;
+    document.getElementById("otp-email-display").textContent = email;
+    document.getElementById("email-step").style.display = "none";
+    document.getElementById("otp-step").style.display   = "block";
+    showInfo("info-otp","OTP sent successfully.");
+  } catch(err) { showErr("err-email","Failed to send OTP. Please try again."); }
+  btn.disabled = false; btn.textContent = "Send OTP";
+}
+async function resendOTP() {
+  clearErr("err-otp"); showInfo("info-otp","Resending OTP…");
+  try {
+    const res = await post({ hrAction:"requestOTP", email: otpEmail });
+    if (res.status === "ok") showInfo("info-otp","A new OTP has been sent.");
+    else showErr("err-otp","Could not resend OTP.");
+  } catch(e) { showErr("err-otp","Could not resend OTP."); }
+}
+async function verifyOTP() {
+  const otp = document.getElementById("otp-value").value.trim();
+  if (otp.length !== 6) { showErr("err-otp","Please enter the 6-digit OTP."); return; }
+  clearErr("err-otp"); clearInfo("info-otp");
+  const btn = document.getElementById("verify-otp-btn");
+  btn.disabled = true; btn.textContent = "Verifying…";
+  try {
+    const res = await post({ hrAction:"verifyOTP", email: otpEmail, otp });
+    if (res.status === "otp_invalid")  { showErr("err-otp","Incorrect OTP. Please try again."); btn.disabled=false; btn.textContent="Verify & Sign In"; return; }
+    if (res.status === "otp_expired")  { showErr("err-otp","This OTP has expired. Please request a new one."); btn.disabled=false; btn.textContent="Verify & Sign In"; return; }
+    if (res.status !== "ok") throw new Error(res.message || "Verification failed");
+    hrToken = res.hrToken; hrName = res.name; hrRole = res.role;
+    sessExpiry = Date.now() + 30*60*1000;
+    sessionStorage.setItem("incred_hr_sess", JSON.stringify({ token:hrToken, name:hrName, role:hrRole, expiry:sessExpiry }));
+    showAdminScreen();
+    loadData();
+  } catch(err) { showErr("err-otp","Verification failed. Please try again."); }
+  btn.disabled=false; btn.textContent="Verify & Sign In";
+}
+function logout() {
+  sessionStorage.removeItem("incred_hr_sess");
+  clearInterval(sessTimerInterval);
+  hrToken = hrName = hrRole = "";
+  document.getElementById("email-step").style.display = "block";
+  document.getElementById("otp-step").style.display   = "none";
+  document.getElementById("hr-email").value = "";
+  document.getElementById("otp-value").value= "";
+  showOTPScreen();
+}
 
-  function onTestSubmitted(res) {
-    if (res.success) {
-      document.getElementById('quizCard').style.display = 'none';
-      document.getElementById('thankYouCard').style.display = 'block';
-      document.getElementById('resultSummaryText').innerText = `You scored ${res.score} points.`;
-    } else {
-      alert(res.message || "Error submitting assessment.");
+// ── ADMIN SCREEN ─────────────────────────────────────────────────────
+function showAdminScreen() {
+  document.getElementById("otp-screen").style.display   = "none";
+  document.getElementById("admin-screen").style.display = "block";
+  document.getElementById("session-bar").style.display  = "flex";
+  document.getElementById("sess-name").textContent = hrName;
+  document.getElementById("sess-role").textContent = hrRole;
+  document.getElementById("viewer-note").style.display = hrRole === "Viewer" ? "inline-flex" : "none";
+  startSessTimer();
+}
+function startSessTimer() {
+  clearInterval(sessTimerInterval);
+  sessTimerInterval = setInterval(() => {
+    const rem = sessExpiry - Date.now();
+    if (rem <= 0) { clearInterval(sessTimerInterval); showToast("Session expired. Please log in again.", "err"); setTimeout(logout, 2000); return; }
+    const m = String(Math.floor(rem/60000)).padStart(2,"0");
+    const s = String(Math.floor((rem%60000)/1000)).padStart(2,"0");
+    document.getElementById("sess-timer").textContent = `${m}:${s}`;
+  }, 1000);
+}
+
+// ── DATA ─────────────────────────────────────────────────────────────
+async function loadData() {
+  showLoading(true);
+  try {
+    const res = await post({ adminAction:"getCandidates", hrToken });
+    if (res.status === "session_expired") { showToast("Session expired. Please log in again.","err"); setTimeout(logout,2000); showLoading(false); return; }
+    if (res.status !== "ok") throw new Error(res.message || "Server error");
+    candidates = res.candidates || [];
+    updateStats(); renderTab();
+  } catch(err) { showToast("Failed to load data: "+err.message,"err"); }
+  showLoading(false);
+}
+function updateStats() {
+  const all = candidates.filter(c => c.status !== "DISQUALIFIED");
+  document.getElementById("st-total").textContent = candidates.length;
+  document.getElementById("st-r1").textContent    = all.filter(c => c.testPipelineStatus === S_R1 || c.override==="INCLUDE").length;
+  document.getElementById("st-r2").textContent    = candidates.filter(c => c.round1Status === S_R2).length;
+  document.getElementById("st-sel").textContent   = candidates.filter(c => c.round2Status === S_SEL).length;
+  document.getElementById("st-disq").textContent  = candidates.filter(c => c.status==="DISQUALIFIED").length;
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  activeTab = tab;
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  renderTab();
+}
+function renderTab() {
+  if (activeTab==="test")   renderTestTab();
+  if (activeTab==="round1") renderRound1Tab();
+  if (activeTab==="round2") renderRound2Tab();
+}
+function searchTerm() { return (document.getElementById("search-box").value||"").toLowerCase(); }
+function matchSearch(c) {
+  const t = searchTerm();
+  return !t || (c.name||"").toLowerCase().includes(t) || (c.roll||"").toLowerCase().includes(t);
+}
+const canEdit = () => hrRole === "Admin";
+
+// ── TEST RESULTS TAB ─────────────────────────────────────────────────
+function renderTestTab() {
+  const rows = candidates.filter(c => c.status !== "DISQUALIFIED" && matchSearch(c));
+  if (!rows.length) { renderEmpty(); return; }
+  let html = `<table><thead><tr>
+    <th>Name</th><th>Roll Number</th><th>Test Status</th><th>Time</th>
+    <th>Sec 1</th><th>Coding</th><th>Total</th><th>Percentile</th>
+    <th>Pipeline Status</th><th>Override</th><th>Remarks</th>
+  </tr></thead><tbody>`;
+  rows.forEach(c => {
+    const pip = c.testPipelineStatus || "";
+    html += `<tr>
+      <td class="name-cell">${esc(c.name)}</td>
+      <td>${esc(c.roll)}</td>
+      <td>${testStatusBadge(c.status)}</td>
+      <td>${esc(c.timeTaken)}</td>
+      <td>${c.section1Score}</td><td>${c.codingScore}</td>
+      <td><strong>${c.totalScore}</strong></td>
+      <td>${c.percentile !== "" ? c.percentile+"%" : "—"}</td>
+      <td>${pipelineBadge(pip)}</td>
+      <td>
+        <select class="isel" ${canEdit()?"":'disabled'} onchange="saveField(${c.rowIndex},'override',this.value)">
+          <option value="AUTO"    ${c.override==="AUTO"    ?"selected":""}>Auto</option>
+          <option value="INCLUDE" ${c.override==="INCLUDE" ?"selected":""}>Force Include</option>
+          <option value="EXCLUDE" ${c.override==="EXCLUDE" ?"selected":""}>Force Exclude</option>
+        </select>
+      </td>
+      <td style="max-width:200px;font-size:12px;color:var(--muted)">${esc(c.remarks)}</td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+  document.getElementById("table-area").innerHTML = html;
+}
+
+// ── ROUND 1 TAB ───────────────────────────────────────────────────────
+function renderRound1Tab() {
+  const rows = candidates.filter(c => {
+    if (c.status === "DISQUALIFIED") return false;
+    const auto = c.testPipelineStatus === S_R1;
+    return (auto || c.override==="INCLUDE") && c.override!=="EXCLUDE" && matchSearch(c);
+  });
+  if (!rows.length) { renderEmpty("No candidates shortlisted for Round 1 yet."); return; }
+  let html = `<table><thead><tr>
+    <th>Name</th><th>Roll Number</th><th>Total</th><th>Percentile</th>
+    <th>Round 1 Status</th><th>Round 1 Feedback</th><th>Save</th>
+  </tr></thead><tbody>`;
+  rows.forEach(c => {
+    html += `<tr>
+      <td class="name-cell">${esc(c.name)}</td>
+      <td>${esc(c.roll)}</td>
+      <td><strong>${c.totalScore}</strong></td>
+      <td>${c.percentile !== "" ? c.percentile+"%" : "—"}</td>
+      <td>
+        <select class="isel" id="r1s-${c.rowIndex}" ${canEdit()?"":'disabled'}>
+          <option value="" ${!c.round1Status?"selected":""}>— Pending —</option>
+          <option value="${S_R2}"   ${c.round1Status===S_R2  ?"selected":""}>${S_R2}</option>
+          <option value="${S_NQR1}" ${c.round1Status===S_NQR1?"selected":""}>${S_NQR1}</option>
+        </select>
+      </td>
+      <td><input class="ifld" id="r1f-${c.rowIndex}" type="text" ${canEdit()?"":'disabled'} value="${esc(c.round1Feedback)}" placeholder="Enter feedback…"></td>
+      <td>
+        ${canEdit() ? `<button class="btn btn-save" onclick="saveRound(1,${c.rowIndex})">Save</button><span class="save-dot" id="dot-r1-${c.rowIndex}"></span>` : '<span style="color:var(--muted);font-size:12px;">Viewer</span>'}
+      </td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+  document.getElementById("table-area").innerHTML = html;
+}
+
+// ── ROUND 2 TAB ───────────────────────────────────────────────────────
+function renderRound2Tab() {
+  const rows = candidates.filter(c => c.round1Status === S_R2 && matchSearch(c));
+  if (!rows.length) { renderEmpty("No candidates shortlisted for Round 2 yet."); return; }
+  let html = `<table><thead><tr>
+    <th>Name</th><th>Roll Number</th><th>Total</th><th>Percentile</th>
+    <th>Rnd 1 Feedback</th><th>Round 2 Status</th><th>Round 2 Feedback</th><th>Save</th>
+  </tr></thead><tbody>`;
+  rows.forEach(c => {
+    html += `<tr>
+      <td class="name-cell">${esc(c.name)}</td>
+      <td>${esc(c.roll)}</td>
+      <td><strong>${c.totalScore}</strong></td>
+      <td>${c.percentile !== "" ? c.percentile+"%" : "—"}</td>
+      <td style="max-width:150px;font-size:12px;color:var(--muted)">${esc(c.round1Feedback)}</td>
+      <td>
+        <select class="isel" id="r2s-${c.rowIndex}" ${canEdit()?"":'disabled'}>
+          <option value="" ${!c.round2Status?"selected":""}>— Pending —</option>
+          <option value="${S_SEL}"  ${c.round2Status===S_SEL  ?"selected":""}>${S_SEL}</option>
+          <option value="${S_NQR2}" ${c.round2Status===S_NQR2 ?"selected":""}>${S_NQR2}</option>
+        </select>
+      </td>
+      <td><input class="ifld" id="r2f-${c.rowIndex}" type="text" ${canEdit()?"":'disabled'} value="${esc(c.round2Feedback)}" placeholder="Enter feedback…"></td>
+      <td>
+        ${canEdit() ? `<button class="btn btn-save" onclick="saveRound(2,${c.rowIndex})">Save</button><span class="save-dot" id="dot-r2-${c.rowIndex}"></span>` : '<span style="color:var(--muted);font-size:12px;">Viewer</span>'}
+      </td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+  document.getElementById("table-area").innerHTML = html;
+}
+
+function renderEmpty(msg) {
+  document.getElementById("table-area").innerHTML =
+    `<div class="empty"><div class="icon">📋</div><p>${msg || "No records to display."}</p></div>`;
+}
+
+// ── SAVE ACTIONS ─────────────────────────────────────────────────────
+async function saveField(rowIndex, field, value) {
+  if (!canEdit()) return;
+  try {
+    const payload = { adminAction:"updateCandidate", hrToken, rowIndex };
+    payload[field] = value;
+    const res = await post(payload);
+    if (res.status === "session_expired") { showToast("Session expired.","err"); setTimeout(logout,2000); return; }
+    if (res.status !== "ok") throw new Error(res.message || "Save failed");
+    const c = candidates.find(x => x.rowIndex === rowIndex);
+    if (c) { c[field] = value; }
+    updateStats();
+    showToast("Saved.","ok");
+  } catch(err) { showToast("Save failed: "+err.message,"err"); }
+}
+
+async function saveRound(round, rowIndex) {
+  if (!canEdit()) return;
+  const statusEl   = document.getElementById(`r${round}s-${rowIndex}`);
+  const feedbackEl = document.getElementById(`r${round}f-${rowIndex}`);
+  const status     = statusEl.value;
+  const feedback   = feedbackEl.value.trim();
+  try {
+    const payload = { adminAction:"updateCandidate", hrToken, rowIndex };
+    if (round === 1) { payload.round1Status = status; payload.round1Feedback = feedback; }
+    else             { payload.round2Status = status; payload.round2Feedback = feedback; }
+    const res = await post(payload);
+    if (res.status === "session_expired") { showToast("Session expired.","err"); setTimeout(logout,2000); return; }
+    if (res.status !== "ok") throw new Error(res.message);
+    const c = candidates.find(x => x.rowIndex === rowIndex);
+    if (c) {
+      if (round===1) { c.round1Status=status; c.round1Feedback=feedback; }
+      else           { c.round2Status=status; c.round2Feedback=feedback; }
     }
-  }
+    updateStats();
+    flashDot(`dot-r${round}-${rowIndex}`);
+    showToast(`Round ${round} details saved.`,"ok");
+  } catch(err) { showToast("Save failed: "+err.message,"err"); }
+}
 
-  // --- HR ADMIN FUNCTIONS ---
-  function authenticateHR() {
-    const key = document.getElementById('adminPasskey').value.trim();
-    if (key === "HR_ADMIN_2026") {
-      activePasskey = key;
-      document.getElementById('adminAuthModal').style.display = 'none';
-      document.getElementById('adminDashboardView').style.display = 'block';
-      fetchAdminData();
-    } else {
-      alert("Invalid HR Passkey.");
-    }
-  }
+// ── XLSX DOWNLOAD ─────────────────────────────────────────────────────
+async function downloadReport() {
+  showLoading(true);
+  try {
+    const stageMap = { test:"TEST", round1:"ROUND1", round2:"ROUND2" };
+    const stage    = stageMap[activeTab] || "TEST";
+    const res      = await post({ adminAction:"exportReport", hrToken, stage });
+    if (res.status === "session_expired") { showToast("Session expired.","err"); setTimeout(logout,2000); showLoading(false); return; }
+    if (res.status !== "ok") throw new Error(res.message || "Export failed");
 
-  function fetchAdminData() {
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run
-        .withSuccessHandler(data => { candidateData = data; renderAdminTables(); })
-        .getCandidateDataForAdmin(activePasskey);
-    }
-  }
-
-  function switchAdminTab(tab, evt) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
-    
-    evt.target.classList.add('active');
-    if (tab === 'testStage') document.getElementById('testStageTab').style.display = 'block';
-    if (tab === 'round1') document.getElementById('round1Tab').style.display = 'block';
-    if (tab === 'round2') document.getElementById('round2Tab').style.display = 'block';
-  }
-
-  function renderAdminTables() {
-    // Stage 1 Table
-    const tBody = document.getElementById('testTableBody');
-    tBody.innerHTML = '';
-    candidateData.forEach(c => {
-      tBody.innerHTML += `
-        <tr>
-          <td>${c.name}</td>
-          <td>${c.rollNumber}</td>
-          <td>${c.score}</td>
-          <td><span class="badge ${c.autoEligible ? 'badge-pass' : 'badge-fail'}">${c.autoEligible ? 'Passed' : 'Failed'}</span></td>
-          <td>
-            <select id="ov-${c.id}">
-              <option value="AUTO" ${c.overrideStatus === 'AUTO' ? 'selected' : ''}>Auto Cutoff</option>
-              <option value="INCLUDE" ${c.overrideStatus === 'INCLUDE' ? 'selected' : ''}>Manual Include</option>
-              <option value="EXCLUDE" ${c.overrideStatus === 'EXCLUDE' ? 'selected' : ''}>Manual Exclude</option>
-            </select>
-          </td>
-          <td>
-            <select id="s1-stat-${c.id}">
-              <option value="Shortlisted for 1st Round PI" ${c.stage1Status === 'Shortlisted for 1st Round PI' ? 'selected' : ''}>Shortlisted for 1st Round PI</option>
-              <option value="Rejected in Test Round" ${c.stage1Status === 'Rejected in Test Round' ? 'selected' : ''}>Rejected in Test Round</option>
-            </select>
-          </td>
-          <td><input type="text" id="s1-fb-${c.id}" value="${c.stage1Feedback || ''}"></td>
-          <td><button class="btn" style="padding:4px 8px; font-size:0.8rem;" onclick="saveStage('${c.id}', 'TEST')">Save</button></td>
-        </tr>
-      `;
+    const ws   = XLSX.utils.aoa_to_sheet([res.headers, ...res.rows]);
+    // Auto column widths
+    const colWidths = res.headers.map((h, i) => {
+      const maxLen = Math.max(h.length, ...res.rows.map(r => String(r[i]||"").length));
+      return { wch: Math.min(Math.max(maxLen, 10), 50) };
     });
+    ws["!cols"] = colWidths;
+    const wb = XLSX.utils.book_new();
+    const labelMap = { TEST:"Test Results", ROUND1:"Round 1 PI", ROUND2:"Round 2 PI" };
+    XLSX.utils.book_append_sheet(wb, ws, labelMap[stage]);
+    const fname = `InCred_CampusTest_${labelMap[stage].replace(/ /g,"_")}_${dateStr()}.xlsx`;
+    XLSX.writeFile(wb, fname);
+    showToast(`${labelMap[stage]} report downloaded.`,"ok");
+  } catch(err) { showToast("Download failed: "+err.message,"err"); }
+  showLoading(false);
+}
 
-    // Stage 2 Table
-    const r1Body = document.getElementById('round1TableBody');
-    r1Body.innerHTML = '';
-    const r1Pool = candidateData.filter(c => c.overrideStatus === 'INCLUDE' || (c.autoEligible && c.overrideStatus !== 'EXCLUDE'));
-    r1Pool.forEach(c => {
-      r1Body.innerHTML += `
-        <tr>
-          <td>${c.name}</td>
-          <td>${c.rollNumber}</td>
-          <td>${c.stage1Status}</td>
-          <td><input type="text" id="r1-fb-${c.id}" value="${c.stage2Feedback || ''}"></td>
-          <td>
-            <select id="r1-stat-${c.id}">
-              <option value="" ${!c.stage2Status ? 'selected' : ''}>-- Select Status --</option>
-              <option value="Shortlisted for 2nd Round PI" ${c.stage2Status === 'Shortlisted for 2nd Round PI' ? 'selected' : ''}>Shortlisted for 2nd Round PI</option>
-              <option value="Rejected in 1st Round PI" ${c.stage2Status === 'Rejected in 1st Round PI' ? 'selected' : ''}>Rejected in 1st Round PI</option>
-            </select>
-          </td>
-          <td><button class="btn" style="padding:4px 8px; font-size:0.8rem;" onclick="saveStage('${c.id}', 'ROUND1')">Save</button></td>
-        </tr>
-      `;
-    });
+// ── BADGE HELPERS ─────────────────────────────────────────────────────
+function testStatusBadge(s) {
+  if (s==="Completed")    return `<span class="badge bg-green">Completed</span>`;
+  if (s==="TIME EXPIRED") return `<span class="badge bg-yellow">Time Expired</span>`;
+  if (s==="DISQUALIFIED") return `<span class="badge bg-red">Disqualified</span>`;
+  return `<span class="badge bg-grey">${esc(s)}</span>`;
+}
+function pipelineBadge(s) {
+  if (s===S_R1)  return `<span class="badge bg-blue">${s}</span>`;
+  if (s===S_R2)  return `<span class="badge bg-blue">${s}</span>`;
+  if (s===S_SEL) return `<span class="badge bg-green">${s}</span>`;
+  if (s===S_NQT||s===S_NQR1||s===S_NQR2) return `<span class="badge bg-red">${s}</span>`;
+  return s ? `<span class="badge bg-grey">${esc(s)}</span>` : "—";
+}
 
-    // Stage 3 Table
-    const r2Body = document.getElementById('round2TableBody');
-    r2Body.innerHTML = '';
-    const r2Pool = candidateData.filter(c => c.stage2Status === 'Shortlisted for 2nd Round PI');
-    r2Pool.forEach(c => {
-      r2Body.innerHTML += `
-        <tr>
-          <td>${c.name}</td>
-          <td>${c.rollNumber}</td>
-          <td>${c.stage2Status}</td>
-          <td><input type="text" id="r2-fb-${c.id}" value="${c.stage3Feedback || ''}"></td>
-          <td>
-            <select id="r2-stat-${c.id}">
-              <option value="" ${!c.stage3Status ? 'selected' : ''}>-- Select Status --</option>
-              <option value="Selected in Final Process" ${c.stage3Status === 'Selected in Final Process' ? 'selected' : ''}>Selected in Final Process</option>
-              <option value="Rejected in 2nd Round PI" ${c.stage3Status === 'Rejected in 2nd Round PI' ? 'selected' : ''}>Rejected in 2nd Round PI</option>
-              <option value="Not Selected in Final Process" ${c.stage3Status === 'Not Selected in Final Process' ? 'selected' : ''}>Not Selected in Final Process</option>
-            </select>
-          </td>
-          <td><button class="btn" style="padding:4px 8px; font-size:0.8rem;" onclick="saveStage('${c.id}', 'ROUND2')">Save</button></td>
-        </tr>
-      `;
-    });
-  }
-
-  function saveStage(id, stage) {
-    let candidate = candidateData.find(c => c.id.toString() === id.toString());
-    if (!candidate) return;
-
-    let override, status, feedback;
-    if (stage === 'TEST') {
-      override = document.getElementById(`ov-${id}`).value;
-      status = document.getElementById(`s1-stat-${id}`).value;
-      feedback = document.getElementById(`s1-fb-${id}`).value;
-      candidate.overrideStatus = override;
-      candidate.stage1Status = status;
-      candidate.stage1Feedback = feedback;
-    } else if (stage === 'ROUND1') {
-      status = document.getElementById(`r1-stat-${id}`).value;
-      feedback = document.getElementById(`r1-fb-${id}`).value;
-      candidate.stage2Status = status;
-      candidate.stage2Feedback = feedback;
-    } else if (stage === 'ROUND2') {
-      status = document.getElementById(`r2-stat-${id}`).value;
-      feedback = document.getElementById(`r2-fb-${id}`).value;
-      candidate.stage3Status = status;
-      candidate.stage3Feedback = feedback;
-    }
-
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run.updateCandidateByAdmin(activePasskey, id, stage, status, feedback, override);
-    }
-    alert(`Updated details for ${candidate.name}.`);
-    renderAdminTables();
-  }
-
-  function exportCSV(stage) {
-    if (typeof google !== 'undefined' && google.script && google.script.run) {
-      google.script.run
-        .withSuccessHandler(csv => {
-          const blob = new Blob([csv], { type: 'text/csv' });
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(blob);
-          link.download = `Stage_${stage}_Report.csv`;
-          link.click();
-        })
-        .exportStageReport(activePasskey, stage);
-    }
-  }
+// ── UTILITIES ─────────────────────────────────────────────────────────
+async function post(payload) {
+  const res = await fetch(SCRIPT_URL, { method:"POST", body:JSON.stringify(payload) });
+  return res.json();
+}
+function showLoading(on) { document.getElementById("loading").style.display = on?"flex":"none"; }
+function showToast(msg, type) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.className = "show "+(type||"");
+  setTimeout(() => { t.className=""; }, 3500);
+}
+function flashDot(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2500);
+}
+function esc(s) {
+  if (s===null||s===undefined) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function dateStr() {
+  const d=new Date();
+  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+}
+function showErr(id, msg)  { const e=document.getElementById(id); e.textContent=msg; e.style.display="block"; }
+function clearErr(id)      { const e=document.getElementById(id); e.textContent="";  e.style.display="none"; }
+function showInfo(id, msg) { const e=document.getElementById(id); e.textContent=msg; e.style.display="block"; }
+function clearInfo(id)     { const e=document.getElementById(id); e.textContent="";  e.style.display="none"; }
 </script>
 </body>
 </html>
